@@ -266,13 +266,16 @@ body.dark-mode .choices__placeholder {
   color: #aaa !important;
 }
 body.dark-mode #result {
-  background-color: #1e2a36;
+  background-color: #252f3a;
   border: 1px solid #70b9ff;
-  color: #f0f8ff;
-  box-shadow: 0 0 10px rgba(112, 185, 255, 0.25);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(112, 185, 255, 0.3);
 }
 
+/* Result breakdown text */
 body.dark-mode #resultInWords,
 body.dark-mode #summary {
-  color: #e0ecff;
+  color: #e5f2ff;
+  font-weight: 500;
 }
