@@ -1,3 +1,22 @@
+document.addEventListener('DOMContentLoaded', function () {
+  const fundDropdown = document.getElementById('fund');
+  const cagrInput = document.getElementById('cagr');
+
+  // Initialize Choices.js
+  const choices = new Choices(fundDropdown);
+
+  // Update CAGR field based on selected fund
+  fundDropdown.addEventListener('change', function () {
+    const selectedValue = this.value;
+    if (selectedValue) {
+      cagrInput.value = selectedValue;
+    } else {
+      cagrInput.value = '';
+    }
+  });
+});
+
+// Core SIP calculation function
 function calculateSIP() {
   const sip = parseFloat(document.getElementById('sipAmount').value);
   const years = parseFloat(document.getElementById('years').value);
@@ -10,26 +29,14 @@ function calculateSIP() {
 
   const months = years * 12;
   const monthlyRate = cagr / 100 / 12;
-
   const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
 
-animateValue('result', 0, futureValue, 1000);
+  animateValue('result', 0, futureValue, 1000);
+  showInWords(futureValue);
   drawChart(sip, cagr, years);
-  function showInWords(amount) {
-  const wordsDiv = document.getElementById('resultInWords');
-  const formatter = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  });
-  const formatted = formatter.format(amount);
-  wordsDiv.innerText = `💬 ${formatted} (in words)`;
 }
 
-// Set CAGR value based on selected fund
-document.getElementById('fund').addEventListener('change', function () {
-  document.getElementById('cagr').value = this.value;
-});
+// Animation for number increase
 function animateValue(id, start, end, duration) {
   let range = end - start;
   let current = start;
@@ -41,18 +48,32 @@ function animateValue(id, start, end, duration) {
     if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
       current = end;
       obj.innerText = formatNumberIndianStyle(end.toFixed(2));
-      showInWords(end);
     } else {
       obj.innerText = formatNumberIndianStyle(current.toFixed(2));
       requestAnimationFrame(step);
     }
   };
-
   step();
 }
+
+// Display amount in words
+function showInWords(amount) {
+  const wordsDiv = document.getElementById('resultInWords');
+  const formatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  });
+  const formatted = formatter.format(amount);
+  wordsDiv.innerText = `💬 ${formatted} (in words)`;
+}
+
+// Indian formatting style
 function formatNumberIndianStyle(x) {
   return Number(x).toLocaleString('en-IN');
 }
+
+// Draw chart with CAGR data
 function drawChart(sip, cagr, years) {
   const months = years * 12;
   const monthlyRate = cagr / 100 / 12;
@@ -66,7 +87,7 @@ function drawChart(sip, cagr, years) {
   }
 
   const ctx = document.getElementById('growthChart').getContext('2d');
-  if (window.chart) window.chart.destroy(); // Clear old chart
+  if (window.chart) window.chart.destroy(); // Reset old chart
   window.chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -93,22 +114,3 @@ function drawChart(sip, cagr, years) {
     }
   });
 }
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const fundDropdown = document.getElementById('fund');
-  const cagrInput = document.getElementById('cagr');
-
-  fundDropdown.addEventListener('change', function () {
-    const selectedValue = this.value;
-    if (selectedValue) {
-      cagrInput.value = selectedValue;
-    } else {
-      cagrInput.value = '';
-    }
-  });
-});
-</script>
-// Set CAGR value based on selected fund
-document.getElementById('fund').addEventListener('change', function () {
-  document.getElementById('cagr').value = this.value;
-});
