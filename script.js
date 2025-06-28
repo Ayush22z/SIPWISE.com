@@ -94,7 +94,7 @@ function drawChart(sip, cagr, years) {
   });
 }
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
   const fundDropdown = document.getElementById('fund');
   const cagrInput = document.getElementById('cagr');
 
@@ -105,6 +105,7 @@ function drawChart(sip, cagr, years) {
     }
   });
 });
+</script>
 // Set CAGR value based on selected fund
 document.getElementById('fund').addEventListener('change', function () {
   document.getElementById('cagr').value = this.value;
