@@ -31,7 +31,7 @@ function calculateSIP() {
   showInWords(futureValue);
   drawChart(sip, cagr, years);
 
-  // Total Invested vs Final Value
+  // ✅ FIXED: Total Invested vs Final Value
   const totalInvested = sip * 12 * years;
   const wealthGained = futureValue - totalInvested;
   const summaryDiv = document.getElementById('summary');
