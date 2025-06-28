@@ -118,10 +118,12 @@
 <script src="script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
-  const fundDropdown = document.getElementById('fund');
-  const choices = new Choices(fundDropdown, {
-    searchEnabled: true,
-    itemSelectText: '',
+  document.addEventListener('DOMContentLoaded', function () {
+    const fundDropdown = document.getElementById('fund');
+    const choices = new Choices(fundDropdown, {
+      searchEnabled: true,
+      itemSelectText: '',
+    });
   });
 </script>
 
