@@ -1,67 +1,74 @@
 document.addEventListener('DOMContentLoaded', function () {
   const fundDropdown = document.getElementById('fund');
   const cagrInput = document.getElementById('cagr');
-  const inflationGroup = document.getElementById('inflationRateGroup');
-  const adjustCheckbox = document.getElementById('adjustInflation');
 
-  new Choices(fundDropdown); // Searchable dropdown
+  // ✅ Initialize Choices.js
+  const choices = new Choices(fundDropdown, { searchEnabled: true });
 
+  // ✅ When fund is selected, update CAGR input
   fundDropdown.addEventListener('change', function () {
-    cagrInput.value = this.value || '';
+    const selectedValue = parseFloat(this.value);
+    if (!isNaN(selectedValue)) {
+      cagrInput.value = selectedValue;
+    }
   });
+
+  // ✅ Inflation toggle show/hide input
+  const adjustCheckbox = document.getElementById('adjustInflation');
+  const inflationGroup = document.getElementById('inflationRateGroup');
 
   adjustCheckbox.addEventListener('change', function () {
     inflationGroup.style.display = this.checked ? 'block' : 'none';
   });
 });
 
-// ✅ Calculate SIP
 function calculateSIP() {
   const sip = parseFloat(document.getElementById('sipAmount').value);
   const years = parseFloat(document.getElementById('years').value);
-  const cagr = parseFloat(document.getElementById('cagr').value);
-  const adjust = document.getElementById('adjustInflation').checked;
-  const inflationRate = parseFloat(document.getElementById('inflationRate').value || 6);
+  const cagrInput = parseFloat(document.getElementById('cagr').value);
+  const adjustInflation = document.getElementById('adjustInflation').checked;
+  let inflationRate = parseFloat(document.getElementById('inflationRate')?.value || 0);
+  let cagr = cagrInput;
+
+  if (adjustInflation) {
+    cagr = (((1 + cagrInput / 100) / (1 + inflationRate / 100)) - 1) * 100;
+  }
 
   if (isNaN(sip) || isNaN(years) || isNaN(cagr)) {
-    document.getElementById('result').innerText = '❗ Please enter all values.';
+    document.getElementById('result').innerHTML = "❗ Please enter all values.";
     return;
   }
 
   const months = years * 12;
-  let effectiveCAGR = cagr;
-
-  if (adjust) {
-    effectiveCAGR = (((1 + cagr / 100) / (1 + inflationRate / 100)) - 1) * 100;
-  }
-
-  const monthlyRate = effectiveCAGR / 100 / 12;
+  const monthlyRate = cagr / 100 / 12;
   const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
 
   animateValue('result', 0, futureValue, 1000);
   showInWords(futureValue);
-  drawChart(sip, effectiveCAGR, years);
+  drawChart(sip, cagr, years);
 
   const totalInvested = sip * 12 * years;
-  const gained = futureValue - totalInvested;
+  const wealthGained = futureValue - totalInvested;
 
   document.getElementById('summary').innerHTML = `
     💼 <strong>Total Invested:</strong> ₹${formatNumberIndianStyle(totalInvested.toFixed(0))}<br>
-    💰 <strong>Final Value${adjust ? " (Inflation Adjusted)" : ""}:</strong> ₹${formatNumberIndianStyle(futureValue.toFixed(0))}<br>
-    📈 <strong>Wealth Gained:</strong> ₹${formatNumberIndianStyle(gained.toFixed(0))}<br>
-    ${adjust ? `🧮 <em>Real CAGR Used:</em> ${effectiveCAGR.toFixed(2)}%` : ''}
+    💰 <strong>Final Value${adjustInflation ? " (Inflation Adjusted)" : ""}:</strong> ₹${formatNumberIndianStyle(futureValue.toFixed(0))}<br>
+    📈 <strong>Wealth Gained:</strong> ₹${formatNumberIndianStyle(wealthGained.toFixed(0))}<br>
+    ${adjustInflation ? `🧮 <em>Real CAGR Used:</em> ${cagr.toFixed(2)}%` : ''}
   `;
 }
 
-// ✅ Animate number display
+// Animate number
 function animateValue(id, start, end, duration) {
-  let obj = document.getElementById(id);
+  let range = end - start;
   let current = start;
-  const increment = (end - start) / (duration / 30);
+  let increment = range / (duration / 30);
+  let obj = document.getElementById(id);
 
   const step = () => {
     current += increment;
     if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+      current = end;
       obj.innerText = formatNumberIndianStyle(end.toFixed(2));
     } else {
       obj.innerText = formatNumberIndianStyle(current.toFixed(2));
@@ -71,12 +78,10 @@ function animateValue(id, start, end, duration) {
   step();
 }
 
-// ✅ Indian comma formatting
 function formatNumberIndianStyle(x) {
   return Number(x).toLocaleString('en-IN');
 }
 
-// ✅ Convert to words
 function showInWords(amount) {
   const wordsDiv = document.getElementById('resultInWords');
   const numeric = formatNumberIndianStyle(amount.toFixed(0));
@@ -84,11 +89,11 @@ function showInWords(amount) {
   wordsDiv.innerHTML = `💬 ₹ ${numeric}<br>(${wordy})`;
 }
 
-// ✅ Chart Drawing
 function drawChart(sip, cagr, years) {
   const months = years * 12;
   const monthlyRate = cagr / 100 / 12;
-  let data = [], labels = [];
+  let data = [];
+  let labels = [];
 
   for (let i = 1; i <= years; i++) {
     let fv = sip * (((Math.pow(1 + monthlyRate, i * 12) - 1) / monthlyRate) * (1 + monthlyRate));
@@ -125,7 +130,6 @@ function drawChart(sip, cagr, years) {
   });
 }
 
-// ✅ Number to Indian Words
 function convertToIndianWords(num) {
   if (num === 0) return "Zero";
 
@@ -134,9 +138,16 @@ function convertToIndianWords(num) {
     "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
   const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
 
-  const getWords = (n) => n > 19 ? tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "") : ones[n];
+  const getWords = (n) => {
+    if (n > 19) {
+      return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "");
+    } else {
+      return ones[n];
+    }
+  };
 
   let result = "";
+
   const crore = Math.floor(num / 10000000);
   const lakh = Math.floor((num % 10000000) / 100000);
   const thousand = Math.floor((num % 100000) / 1000);
@@ -147,7 +158,10 @@ function convertToIndianWords(num) {
   if (lakh) result += getWords(lakh) + " Lakh ";
   if (thousand) result += getWords(thousand) + " Thousand ";
   if (hundred) result += getWords(hundred) + " Hundred ";
-  if (rest) result += (result !== "" ? "and " : "") + getWords(rest);
+  if (rest) {
+    if (result !== "") result += "and ";
+    result += getWords(rest);
+  }
 
   return result.trim();
 }
