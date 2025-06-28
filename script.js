@@ -1,26 +1,34 @@
+// ✅ DOM ready setup
 document.addEventListener('DOMContentLoaded', function () {
   const fundDropdown = document.getElementById('fund');
   const cagrInput = document.getElementById('cagr');
+  const adjustCheckbox = document.getElementById('adjustInflation');
+  const inflationGroup = document.getElementById('inflationRateGroup');
 
-  new Choices(fundDropdown); // Initialize searchable dropdown
+  new Choices(fundDropdown); // Searchable dropdown
 
   fundDropdown.addEventListener('change', function () {
-    const selectedValue = this.value;
-    cagrInput.value = selectedValue || '';
+    cagrInput.value = this.value || '';
+  });
+
+  adjustCheckbox.addEventListener('change', function () {
+    inflationGroup.style.display = this.checked ? 'block' : 'none';
   });
 });
 
-// ✅ Core SIP calculation
+// ✅ Core SIP Calculation
 function calculateSIP() {
   const sip = parseFloat(document.getElementById('sipAmount').value);
   const years = parseFloat(document.getElementById('years').value);
   const cagrInput = parseFloat(document.getElementById('cagr').value);
   let cagr = cagrInput;
 
-  const adjustInflation = document.getElementById('adjustInflation').checked;
-  if (adjustInflation) {
-    const inflationRate = parseFloat(document.getElementById('inflationRate').value);
-    cagr = cagrInput - inflationRate; // Adjust CAGR by subtracting inflation
+  const adjustForInflation = document.getElementById('adjustInflation').checked;
+  let inflationRate = 0;
+
+  if (adjustForInflation) {
+    inflationRate = parseFloat(document.getElementById('inflationRate').value);
+    cagr = cagrInput - inflationRate;
   }
 
   if (isNaN(sip) || isNaN(years) || isNaN(cagr)) {
@@ -28,35 +36,22 @@ function calculateSIP() {
     return;
   }
 
-  // ... (rest of your SIP calculation logic)
-}
-
-  // 🧮 Adjust CAGR if toggle is ON
-  let effectiveCAGR = cagr;
-  if (adjustForInflation) {
-    effectiveCAGR = (((1 + cagr / 100) / (1 + inflationRate / 100)) - 1) * 100;
-  }
+  const effectiveCAGR = adjustForInflation
+    ? (((1 + cagrInput / 100) / (1 + inflationRate / 100)) - 1) * 100
+    : cagr;
 
   const months = years * 12;
   const monthlyRate = effectiveCAGR / 100 / 12;
   const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
 
-document.addEventListener('DOMContentLoaded', function () {
-  const adjustCheckbox = document.getElementById('adjustInflation');
-  const inflationGroup = document.getElementById('inflationRateGroup');
-
-  adjustCheckbox.addEventListener('change', function () {
-    inflationGroup.style.display = this.checked ? 'block' : 'none';
-  });
-});
   animateValue('result', 0, futureValue, 1000);
   showInWords(futureValue);
   drawChart(sip, effectiveCAGR, years);
 
   const totalInvested = sip * 12 * years;
   const wealthGained = futureValue - totalInvested;
-  const summaryDiv = document.getElementById('summary');
 
+  const summaryDiv = document.getElementById('summary');
   summaryDiv.innerHTML = `
     💼 <strong>Total Invested:</strong> ₹${formatNumberIndianStyle(totalInvested.toFixed(0))}<br>
     💰 <strong>Final Value${adjustForInflation ? " (Inflation Adjusted)" : ""}:</strong> ₹${formatNumberIndianStyle(futureValue.toFixed(0))}<br>
@@ -65,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
   `;
 }
 
-// ✅ Number counter animation
+// ✅ Animated Number
 function animateValue(id, start, end, duration) {
   let range = end - start;
   let current = start;
@@ -85,12 +80,12 @@ function animateValue(id, start, end, duration) {
   step();
 }
 
-// ✅ Format number using Indian commas
+// ✅ Format Numbers in Indian Style
 function formatNumberIndianStyle(x) {
   return Number(x).toLocaleString('en-IN');
 }
 
-// ✅ Text + Words Display
+// ✅ Convert to Words
 function showInWords(amount) {
   const wordsDiv = document.getElementById('resultInWords');
   const numeric = formatNumberIndianStyle(amount.toFixed(0));
@@ -98,7 +93,7 @@ function showInWords(amount) {
   wordsDiv.innerHTML = `💬 ₹ ${numeric}<br>(${wordy})`;
 }
 
-// ✅ Chart.js Line Graph
+// ✅ Draw Chart with Chart.js
 function drawChart(sip, cagr, years) {
   const months = years * 12;
   const monthlyRate = cagr / 100 / 12;
@@ -140,7 +135,7 @@ function drawChart(sip, cagr, years) {
   });
 }
 
-// ✅ Words for currency formatting
+// ✅ Words Conversion for Indian Currency
 function convertToIndianWords(num) {
   if (num === 0) return "Zero";
 
@@ -176,7 +171,3 @@ function convertToIndianWords(num) {
 
   return result.trim();
 }
-document.getElementById('adjustInflation').addEventListener('change', function () {
-  const showInput = document.getElementById('inflationRateGroup');
-  showInput.style.display = this.checked ? 'block' : 'none';
-});
