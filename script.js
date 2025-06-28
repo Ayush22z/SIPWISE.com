@@ -68,7 +68,15 @@ function showInWords(amount) {
 function formatNumberIndianStyle(x) {
   return Number(x).toLocaleString('en-IN');
 }
-
+// Show Total Invested vs Final Value
+const totalInvested = sip * 12 * years;
+const wealthGained = amount - totalInvested;
+const summaryDiv = document.getElementById('summary');
+summaryDiv.innerHTML = `
+  💼 Total Invested: ₹${formatNumberIndianStyle(totalInvested.toFixed(0))}<br>
+  💰 Final Value: ₹${formatNumberIndianStyle(amount.toFixed(0))}<br>
+  📈 Wealth Gained: ₹${formatNumberIndianStyle(wealthGained.toFixed(0))}
+`;
 // Draw CAGR SIP chart
 function drawChart(sip, cagr, years) {
   const months = years * 12;
