@@ -14,6 +14,7 @@ function calculateSIP() {
   const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
 
 animateValue('result', 0, futureValue, 1000);
+  drawChart(sip, cagr, years);
   function showInWords(amount) {
   const wordsDiv = document.getElementById('resultInWords');
   const formatter = new Intl.NumberFormat('en-IN', {
