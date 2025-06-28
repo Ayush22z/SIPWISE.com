@@ -222,6 +222,11 @@ body.dark-mode #summary {
   color: #ffffff;
   font-weight: 600;
 }
+/* === Fix dimmed text in summary (Dark Mode) === */
+body.dark-mode #summary * {
+  color: #f0f0f0;
+  font-weight: 500;
+}
 
 /* === Choices.js Dark Mode Fix === */
 body.dark-mode .choices__inner,
