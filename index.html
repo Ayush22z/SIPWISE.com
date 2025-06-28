@@ -116,8 +116,9 @@
   <option value="11.30">Union Flexicap Fund</option>
   <option value="11.00">LIC MF Flexicap Fund</option>
 </select>
-    <label for="sipAmount">💰 Monthly SIP (₹):</label>
-    <input type="number" id="sipAmount" placeholder="Enter amount" />
+    <!-- Input Fields -->
+    <label for="sip">💰 Monthly SIP (₹):</label>
+    <input type="number" id="sip" placeholder="Enter amount" />
 
     <label for="years">📅 Duration (Years):</label>
     <input type="number" id="years" placeholder="Years" />
@@ -135,39 +136,42 @@
         Adjust for Inflation (Real Returns)<sup>⭐</sup>
       </label>
     </div>
-    
-<!-- 🌙 Dark Mode Toggle Section -->
-<div class="toggle-row">
-  <label class="switch">
-    <input type="checkbox" id="darkModeToggle" />
-    <span class="slider"></span>
-  </label>
-  <label for="darkModeToggle" class="toggle-label">
-    Dark Mode 🌙
-  </label>
-</div>
-    
+
+    <!-- 🌙 Dark Mode Toggle Section -->
+    <div class="toggle-row">
+      <label class="switch">
+        <input type="checkbox" id="darkModeToggle" />
+        <span class="slider"></span>
+      </label>
+      <label for="darkModeToggle" class="toggle-label">
+        Dark Mode 🌙
+      </label>
+    </div>
+
     <!-- Inflation Note -->
     <small class="note">⭐ Assumes average inflation of <strong>6%</strong> per year</small>
 
-    <!-- Optional Hidden Inflation Rate Input -->
+    <!-- Hidden Inflation Input -->
     <div id="inflationRateGroup" style="display:none; margin-top: 10px;">
       <label for="inflationRate">📉 Inflation Rate (%):</label>
       <input type="number" id="inflationRate" value="6" min="0" max="15" />
     </div>
 
-    <button id="calculateBtn">Calculate</button>
+    <!-- Calculate Button -->
+    <button onclick="calculateSIP()">Calculate</button>
 
-    <!-- Result Outputs -->
-    <div class="output" id="result"></div>
+    <!-- Output Sections -->
+    <div id="result" class="output" style="margin-top: 20px;"></div>
     <div id="resultInWords" style="margin-top: 10px; font-size: 1rem; color: #444;"></div>
     <div id="summary" style="margin-top: 15px; font-size: 1rem; color: #444;"></div>
-    <canvas id="growthChart" style="margin-top: 20px; max-width: 100%;" width="400" height="200"></canvas>
+
+    <!-- Chart -->
+    <canvas id="myChart" style="margin-top: 20px; max-width: 100%;" width="400" height="200"></canvas>
   </div>
 
-  <!-- External Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="script.js"></script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
