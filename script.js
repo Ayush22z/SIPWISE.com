@@ -1,17 +1,18 @@
  function calculateSIP() {
-  const P = parseFloat(document.getElementById('sipAmount').value);
-  const N = parseInt(document.getElementById('years').value) * 12;
-  const r = parseFloat(document.getElementById('cagr').value) / 100 / 12;
-  const resultDiv = document.getElementById('result');
+  const amount = parseFloat(document.getElementById('amount').value);
+  const years = parseFloat(document.getElementById('years').value);
+  const cagr = parseFloat(document.getElementById('fund').value);
 
-  if (isNaN(P) || P <= 0 || isNaN(N) || N <= 0 || isNaN(r)) {
-    resultDiv.innerHTML = 'Please enter valid numbers.';
+  if (isNaN(amount) || isNaN(years) || isNaN(cagr)) {
+    document.getElementById('result').innerText = '❗ Please enter all values correctly.';
     return;
   }
 
-  let corpus = P * (((Math.pow(1 + r, N)) - 1) * (1 + r) / r);
-  resultDiv.innerHTML = `
-    <strong>Invested:</strong> ₹${(P * (N/12)).toLocaleString()}<br>
-    <strong>Expected Corpus:</strong> ₹${corpus.toFixed(0).toLocaleString()}
-  `;
+  const months = years * 12;
+  const monthlyRate = cagr / 100 / 12;
+
+  const futureValue = amount * ((Math.pow(1 + monthlyRate, months) - 1) * (1 + monthlyRate)) / monthlyRate;
+
+  document.getElementById('result').innerText = 
+    `📊 Estimated Value after ${years} years: ₹${futureValue.toFixed(2).toLocaleString('en-IN')}`;
 }
