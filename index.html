@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>Realistic SIP Returns Tool</title>
   <link rel="stylesheet" href="style.css">
+  ...
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+  ...
 </head>
 <body>
   <div class="container">
@@ -112,7 +115,15 @@
 
     <div class="output" id="result"></div>
   </div>
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+  const fundDropdown = document.getElementById('fund');
+  const choices = new Choices(fundDropdown, {
+    searchEnabled: true,
+    itemSelectText: '',
+  });
+</script>
 
-  <script src="script.js"></script>
 </body>
 </html>
