@@ -93,7 +93,7 @@ function drawChart(sip, cagr, years) {
     }
   });
 }
-  <script>
+<script>
 document.addEventListener('DOMContentLoaded', function () {
   const fundDropdown = document.getElementById('fund');
   const cagrInput = document.getElementById('cagr');
@@ -102,6 +102,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectedValue = this.value;
     if (selectedValue) {
       cagrInput.value = selectedValue;
+    } else {
+      cagrInput.value = '';
     }
   });
 });
