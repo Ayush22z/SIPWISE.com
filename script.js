@@ -93,3 +93,7 @@ function drawChart(sip, cagr, years) {
     }
   });
 }
+// Set CAGR value based on selected fund
+document.getElementById('fund').addEventListener('change', function () {
+  document.getElementById('cagr').value = this.value;
+});
