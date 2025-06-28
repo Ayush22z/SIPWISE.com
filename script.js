@@ -16,9 +16,14 @@ document.addEventListener('DOMContentLoaded', function () {
   // ✅ Inflation toggle show/hide input
   const adjustCheckbox = document.getElementById('adjustInflation');
   const inflationGroup = document.getElementById('inflationRateGroup');
-
   adjustCheckbox.addEventListener('change', function () {
     inflationGroup.style.display = this.checked ? 'block' : 'none';
+  });
+
+  // 🌙 Dark mode toggle
+  const darkToggle = document.getElementById('darkModeToggle');
+  darkToggle.addEventListener('change', function () {
+    document.body.classList.toggle('dark-mode', this.checked);
   });
 });
 
