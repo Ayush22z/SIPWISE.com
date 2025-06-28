@@ -13,10 +13,42 @@ function calculateSIP() {
 
   const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
 
-  document.getElementById('result').innerHTML =
-    `<h3>Expected Value: ₹${futureValue.toFixed(2)}</h3>`;
+animateValue('result', 0, futureValue, 1000);
+  function showInWords(amount) {
+  const wordsDiv = document.getElementById("resultWords");
+  const formatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  });
+  const formatted = formatter.format(amount);
+  wordsDiv.innerText = `💬 ${formatted} (in words)`;
 }
+
 // Set CAGR value based on selected fund
 document.getElementById('fund').addEventListener('change', function () {
   document.getElementById('cagr').value = this.value;
 });
+function animateValue(id, start, end, duration) {
+  let range = end - start;
+  let current = start;
+  let increment = range / (duration / 30);
+  let obj = document.getElementById(id);
+
+  const step = () => {
+    current += increment;
+    if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+      current = end;
+      obj.innerText = formatNumberIndianStyle(end.toFixed(2));
+      showInWords(end);
+    } else {
+      obj.innerText = formatNumberIndianStyle(current.toFixed(2));
+      requestAnimationFrame(step);
+    }
+  };
+
+  step();
+}
+function formatNumberIndianStyle(x) {
+  return Number(x).toLocaleString('en-IN');
+}
