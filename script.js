@@ -1,9 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
   const fundDropdown = document.getElementById('fund');
   const cagrInput = document.getElementById('cagr');
+  const adjustCheckbox = document.getElementById('adjustInflation');
+  const inflationGroup = document.getElementById('inflationRateGroup');
+  const darkToggle = document.getElementById('darkModeToggle');
 
   // ✅ Initialize Choices.js
-  const choices = new Choices(fundDropdown, { searchEnabled: true });
+  const choices = new Choices(fundDropdown, {
+    searchEnabled: true,
+    itemSelectText: '',
+    shouldSort: false
+  });
 
   // ✅ When fund is selected, update CAGR input
   fundDropdown.addEventListener('change', function () {
@@ -14,120 +21,96 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ✅ Inflation toggle show/hide input
-  const adjustCheckbox = document.getElementById('adjustInflation');
-  const inflationGroup = document.getElementById('inflationRateGroup');
   adjustCheckbox.addEventListener('change', function () {
     inflationGroup.style.display = this.checked ? 'block' : 'none';
   });
 
-  // 🌙 Dark mode toggle
-  const darkToggle = document.getElementById('darkModeToggle');
+  // ✅ Dark Mode Toggle
   darkToggle.addEventListener('change', function () {
     document.body.classList.toggle('dark-mode', this.checked);
+    updateChartTheme(); // 🔄 Refresh chart theme
   });
 });
 
+let chart; // Chart instance
+
 function calculateSIP() {
-  const sip = parseFloat(document.getElementById('sipAmount').value);
+  const sip = parseFloat(document.getElementById('sip').value);
   const years = parseFloat(document.getElementById('years').value);
   const cagrInput = parseFloat(document.getElementById('cagr').value);
   const adjustInflation = document.getElementById('adjustInflation').checked;
-  let inflationRate = parseFloat(document.getElementById('inflationRate')?.value || 0);
+  let inflationRate = parseFloat(document.getElementById('inflationRate').value);
   let cagr = cagrInput;
 
-  if (adjustInflation) {
-    cagr = (((1 + cagrInput / 100) / (1 + inflationRate / 100)) - 1) * 100;
+  if (adjustInflation && !isNaN(inflationRate)) {
+    cagr = cagrInput - inflationRate;
   }
 
   if (isNaN(sip) || isNaN(years) || isNaN(cagr)) {
-    document.getElementById('result').innerHTML = "❗ Please enter all values.";
+    alert("Please fill all fields correctly.");
     return;
   }
 
   const months = years * 12;
-  const monthlyRate = cagr / 100 / 12;
-  const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
-
-  animateValue('result', 0, futureValue, 1000);
-  showInWords(futureValue);
-  drawChart(sip, cagr, years);
-
-  const totalInvested = sip * 12 * years;
+  const r = cagr / 100 / 12;
+  const futureValue = sip * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+  const totalInvested = sip * months;
   const wealthGained = futureValue - totalInvested;
 
-  document.getElementById('summary').innerHTML = `
-    💼 <strong>Total Invested:</strong> ₹${formatNumberIndianStyle(totalInvested.toFixed(0))}<br>
-    💰 <strong>Final Value${adjustInflation ? " (Inflation Adjusted)" : ""}:</strong> ₹${formatNumberIndianStyle(futureValue.toFixed(0))}<br>
-    📈 <strong>Wealth Gained:</strong> ₹${formatNumberIndianStyle(wealthGained.toFixed(0))}<br>
-    ${adjustInflation ? `🧮 <em>Real CAGR Used:</em> ${cagr.toFixed(2)}%` : ''}
+  // Format currency
+  const format = num => num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+  const result = document.getElementById('result');
+  result.innerHTML = `
+    💬 ${format(futureValue)}<br>
+    <div id="resultInWords">(${convertToWords(futureValue)})</div>
+    <div id="summary">
+      📦 Total Invested: ${format(totalInvested)}<br>
+      💰 Final Value: ${format(futureValue)}<br>
+      🧾 Wealth Gained: ${format(wealthGained)}
+    </div>
   `;
-}
 
-// Animate number
-function animateValue(id, start, end, duration) {
-  let range = end - start;
-  let current = start;
-  let increment = range / (duration / 30);
-  let obj = document.getElementById(id);
+  // 📊 Graph Data
+  const labels = Array.from({ length: years }, (_, i) => `Year ${i + 1}`);
+  const data = labels.map((_, i) => {
+    const n = (i + 1) * 12;
+    return sip * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+  });
 
-  const step = () => {
-    current += increment;
-    if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
-      current = end;
-      obj.innerText = formatNumberIndianStyle(end.toFixed(2));
-    } else {
-      obj.innerText = formatNumberIndianStyle(current.toFixed(2));
-      requestAnimationFrame(step);
-    }
-  };
-  step();
-}
+  const ctx = document.getElementById('myChart').getContext('2d');
+  if (chart) chart.destroy();
 
-function formatNumberIndianStyle(x) {
-  return Number(x).toLocaleString('en-IN');
-}
-
-function showInWords(amount) {
-  const wordsDiv = document.getElementById('resultInWords');
-  const numeric = formatNumberIndianStyle(amount.toFixed(0));
-  const wordy = convertToIndianWords(Math.floor(amount));
-  wordsDiv.innerHTML = `💬 ₹ ${numeric}<br>(${wordy})`;
-}
-
-function drawChart(sip, cagr, years) {
-  const months = years * 12;
-  const monthlyRate = cagr / 100 / 12;
-  let data = [];
-  let labels = [];
-
-  for (let i = 1; i <= years; i++) {
-    let fv = sip * (((Math.pow(1 + monthlyRate, i * 12) - 1) / monthlyRate) * (1 + monthlyRate));
-    data.push(Math.round(fv));
-    labels.push(`Year ${i}`);
-  }
-
-  const ctx = document.getElementById('growthChart').getContext('2d');
-  if (window.chart) window.chart.destroy();
-  window.chart = new Chart(ctx, {
+  chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
+      labels,
       datasets: [{
         label: 'SIP Growth (₹)',
-        data: data,
-        borderColor: '#42a5f5',
-        backgroundColor: 'rgba(66, 165, 245, 0.2)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.3
+        data,
+        fill: false,
+        borderColor: '#70b9ff',
+        tension: 0.3,
+        pointRadius: 4
       }]
     },
     options: {
+      responsive: true,
       scales: {
-        y: {
-          beginAtZero: true,
+        x: {
           ticks: {
-            callback: value => value.toLocaleString('en-IN')
+            color: getComputedStyle(document.body).getPropertyValue('--text-color') || (document.body.classList.contains('dark-mode') ? '#fff' : '#333')
+          }
+        },
+        y: {
+          ticks: {
+            color: getComputedStyle(document.body).getPropertyValue('--text-color') || (document.body.classList.contains('dark-mode') ? '#fff' : '#333')
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
           }
         }
       }
@@ -135,38 +118,55 @@ function drawChart(sip, cagr, years) {
   });
 }
 
-function convertToIndianWords(num) {
-  if (num === 0) return "Zero";
+// 📚 Helper: Convert number to Indian words
+function convertToWords(num) {
+  const formatter = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  });
+  const raw = formatter.format(num);
+  const words = raw.replace(/₹/g, '').replace(/,/g, '').trim();
 
-  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen",
-    "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
-  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const number = parseInt(words);
+  if (isNaN(number)) return "";
+
+  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+  const c = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 
   const getWords = (n) => {
-    if (n > 19) {
-      return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "");
-    } else {
-      return ones[n];
-    }
+    if (n < 10) return a[n];
+    if (n >= 10 && n < 20) return c[n - 10];
+    const tens = Math.floor(n / 10);
+    const units = n % 10;
+    return b[tens] + (units ? ' ' + a[units] : '');
   };
 
-  let result = "";
+  const numStr = number.toString().padStart(9, '0');
+  const crore = parseInt(numStr.slice(0, 2));
+  const lakh = parseInt(numStr.slice(2, 4));
+  const thousand = parseInt(numStr.slice(4, 6));
+  const hundred = parseInt(numStr[6]);
+  const rest = parseInt(numStr.slice(7));
 
-  const crore = Math.floor(num / 10000000);
-  const lakh = Math.floor((num % 10000000) / 100000);
-  const thousand = Math.floor((num % 100000) / 1000);
-  const hundred = Math.floor((num % 1000) / 100);
-  const rest = num % 100;
+  let wordsArray = [];
+  if (crore) wordsArray.push(getWords(crore) + ' Crore');
+  if (lakh) wordsArray.push(getWords(lakh) + ' Lakh');
+  if (thousand) wordsArray.push(getWords(thousand) + ' Thousand');
+  if (hundred) wordsArray.push(a[hundred] + ' Hundred');
+  if (rest) wordsArray.push('and ' + getWords(rest));
 
-  if (crore) result += getWords(crore) + " Crore ";
-  if (lakh) result += getWords(lakh) + " Lakh ";
-  if (thousand) result += getWords(thousand) + " Thousand ";
-  if (hundred) result += getWords(hundred) + " Hundred ";
-  if (rest) {
-    if (result !== "") result += "and ";
-    result += getWords(rest);
-  }
+  return wordsArray.join(' ');
+}
 
-  return result.trim();
+// 🔄 Update Chart Theme on Dark Mode Toggle
+function updateChartTheme() {
+  if (!chart) return;
+
+  const isDark = document.body.classList.contains('dark-mode');
+  chart.options.scales.x.ticks.color = isDark ? '#fff' : '#333';
+  chart.options.scales.y.ticks.color = isDark ? '#fff' : '#333';
+  chart.options.plugins.legend.labels.color = isDark ? '#fff' : '#333';
+  chart.update();
 }
