@@ -236,3 +236,23 @@ body.dark-mode .choices__placeholder {
 body.dark-mode .choices__list--dropdown {
   border: 1px solid #444;
 }
+/* === Dark Mode Fix for Choices.js === */
+body.dark-mode .choices__inner {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .choices__list--dropdown,
+body.dark-mode .choices__list[role="listbox"] {
+  background-color: #2a2a2a !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .choices__item--selectable {
+  color: #fff !important;
+}
+
+body.dark-mode .choices__placeholder {
+  color: #aaa !important;
+}
