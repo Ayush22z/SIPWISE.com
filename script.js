@@ -14,14 +14,22 @@ document.addEventListener('DOMContentLoaded', function () {
 function calculateSIP() {
   const sip = parseFloat(document.getElementById('sipAmount').value);
   const years = parseFloat(document.getElementById('years').value);
-  const cagr = parseFloat(document.getElementById('cagr').value);
-  const adjustForInflation = document.getElementById('adjustInflation').checked;
-  const inflationRate = 6; // Default inflation rate
+  const cagrInput = parseFloat(document.getElementById('cagr').value);
+  let cagr = cagrInput;
+
+  const adjustInflation = document.getElementById('adjustInflation').checked;
+  if (adjustInflation) {
+    const inflationRate = parseFloat(document.getElementById('inflationRate').value);
+    cagr = cagrInput - inflationRate; // Adjust CAGR by subtracting inflation
+  }
 
   if (isNaN(sip) || isNaN(years) || isNaN(cagr)) {
     document.getElementById('result').innerHTML = "❗ Please enter all values.";
     return;
   }
+
+  // ... (rest of your SIP calculation logic)
+}
 
   // 🧮 Adjust CAGR if toggle is ON
   let effectiveCAGR = cagr;
