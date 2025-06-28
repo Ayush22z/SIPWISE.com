@@ -1,58 +1,50 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   const fundDropdown = document.getElementById('fund');
   const cagrInput = document.getElementById('cagr');
   const adjustCheckbox = document.getElementById('adjustInflation');
   const inflationGroup = document.getElementById('inflationRateGroup');
   const darkToggle = document.getElementById('darkModeToggle');
-  const calculateButton = document.getElementById('calculateBtn');
 
-  // ✅ Initialize Choices.js
   new Choices(fundDropdown, {
     searchEnabled: true,
     itemSelectText: '',
     shouldSort: false
   });
 
-  // ✅ Auto-fill CAGR when fund is selected
   fundDropdown.addEventListener('change', function () {
-    const selectedValue = parseFloat(this.value);
-    if (!isNaN(selectedValue)) {
-      cagrInput.value = selectedValue;
+    const selected = parseFloat(this.value);
+    if (!isNaN(selected)) {
+      cagrInput.value = selected;
     }
   });
 
-  // ✅ Show/hide inflation rate input
   adjustCheckbox.addEventListener('change', function () {
     inflationGroup.style.display = this.checked ? 'block' : 'none';
   });
 
-  // ✅ Toggle dark mode
   darkToggle.addEventListener('change', function () {
     document.body.classList.toggle('dark-mode', this.checked);
     updateChartTheme();
   });
 
-  // ✅ Calculate SIP on button click
-  calculateButton.addEventListener('click', calculateSIP);
+  document.getElementById('calculateBtn').addEventListener('click', calculateSIP);
 });
 
-let chart; // Global chart instance
+let chart;
 
 function calculateSIP() {
   const sip = parseFloat(document.getElementById('sip').value);
   const years = parseFloat(document.getElementById('years').value);
-  const cagrInput = parseFloat(document.getElementById('cagr').value);
+  let cagr = parseFloat(document.getElementById('cagr').value);
   const adjustInflation = document.getElementById('adjustInflation').checked;
-  let inflationRate = parseFloat(document.getElementById('inflationRate').value);
+  const inflationRate = parseFloat(document.getElementById('inflationRate').value);
 
   if (adjustInflation && !isNaN(inflationRate)) {
-    cagrInput -= inflationRate;
+    cagr -= inflationRate;
   }
 
-  const cagr = cagrInput;
-
   if (isNaN(sip) || isNaN(years) || isNaN(cagr)) {
-    alert("Please fill all fields correctly.");
+    alert("Please enter all fields correctly.");
     return;
   }
 
@@ -62,23 +54,20 @@ function calculateSIP() {
   const totalInvested = sip * months;
   const wealthGained = futureValue - totalInvested;
 
-  // Format currency
-  const format = num => num.toLocaleString('en-IN', {
+  const format = n => n.toLocaleString('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0
   });
 
-  // ✅ Update result sections individually
   document.getElementById('result').innerHTML = `💬 ${format(futureValue)}`;
-  document.getElementById('resultInWords').innerHTML = `(${convertToWords(futureValue)})`;
+  document.getElementById('resultInWords').innerText = `(${convertToWords(futureValue)})`;
   document.getElementById('summary').innerHTML = `
     📦 Total Invested: ${format(totalInvested)}<br>
     💰 Final Value: ${format(futureValue)}<br>
     🧾 Wealth Gained: ${format(wealthGained)}
   `;
 
-  // 📊 Graph Data
   const labels = Array.from({ length: years }, (_, i) => `Year ${i + 1}`);
   const data = labels.map((_, i) => {
     const n = (i + 1) * 12;
@@ -86,7 +75,7 @@ function calculateSIP() {
   });
 
   const ctx = document.getElementById('myChart').getContext('2d');
-  if (chart) chart.destroy(); // Destroy old chart if exists
+  if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
     type: 'line',
@@ -96,9 +85,9 @@ function calculateSIP() {
         label: 'SIP Growth (₹)',
         data,
         borderColor: '#70b9ff',
-        fill: false,
         tension: 0.3,
-        pointRadius: 4
+        pointRadius: 4,
+        fill: false
       }]
     },
     options: {
@@ -126,52 +115,45 @@ function calculateSIP() {
   });
 }
 
-// 🔢 Convert large numbers to Indian words
 function convertToWords(num) {
-  const formatter = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  const raw = parseInt(num.toLocaleString('en-IN', {
     maximumFractionDigits: 0
-  });
-  const raw = formatter.format(num).replace(/₹|,/g, '').trim();
-  const number = parseInt(raw);
-  if (isNaN(number)) return "";
+  }).replace(/,/g, ''));
+
+  if (isNaN(raw)) return "";
 
   const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
   const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
   const c = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 
-  const getWords = (n) => {
+  const getWords = n => {
     if (n < 10) return a[n];
-    if (n >= 10 && n < 20) return c[n - 10];
-    const tens = Math.floor(n / 10);
-    const units = n % 10;
-    return b[tens] + (units ? ' ' + a[units] : '');
+    if (n < 20) return c[n - 10];
+    return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
   };
 
-  const numStr = number.toString().padStart(9, '0');
+  const numStr = raw.toString().padStart(9, '0');
   const crore = parseInt(numStr.slice(0, 2));
   const lakh = parseInt(numStr.slice(2, 4));
   const thousand = parseInt(numStr.slice(4, 6));
   const hundred = parseInt(numStr[6]);
   const rest = parseInt(numStr.slice(7));
 
-  const parts = [];
-  if (crore) parts.push(getWords(crore) + ' Crore');
-  if (lakh) parts.push(getWords(lakh) + ' Lakh');
-  if (thousand) parts.push(getWords(thousand) + ' Thousand');
-  if (hundred) parts.push(a[hundred] + ' Hundred');
-  if (rest) parts.push('and ' + getWords(rest));
+  let words = [];
+  if (crore) words.push(getWords(crore) + ' Crore');
+  if (lakh) words.push(getWords(lakh) + ' Lakh');
+  if (thousand) words.push(getWords(thousand) + ' Thousand');
+  if (hundred) words.push(a[hundred] + ' Hundred');
+  if (rest) words.push('and ' + getWords(rest));
 
-  return parts.join(' ');
+  return words.join(' ');
 }
 
-// 🌙 Update chart theme on dark mode toggle
 function updateChartTheme() {
   if (!chart) return;
-  const isDark = document.body.classList.contains('dark-mode');
-  chart.options.scales.x.ticks.color = isDark ? '#fff' : '#333';
-  chart.options.scales.y.ticks.color = isDark ? '#fff' : '#333';
-  chart.options.plugins.legend.labels.color = isDark ? '#fff' : '#333';
+  const dark = document.body.classList.contains('dark-mode');
+  chart.options.scales.x.ticks.color = dark ? '#fff' : '#333';
+  chart.options.scales.y.ticks.color = dark ? '#fff' : '#333';
+  chart.options.plugins.legend.labels.color = dark ? '#fff' : '#333';
   chart.update();
 }
