@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -124,32 +124,37 @@
     <label for="cagr">📊 CAGR (%):</label>
     <input type="number" id="cagr" placeholder="Auto or Manual" />
 
-    <!-- ⚡ New inflation toggle added here -->
+    <!-- Inflation Toggle Section -->
     <div class="toggle-row">
-  <label class="switch">
-    <input type="checkbox" id="adjustInflation" />
-    <span class="slider"></span>
-  </label>
-  <label for="adjustInflation" class="toggle-label">
-  Adjust for Inflation (Real Returns)<sup>⭐</sup>
-</label>
-<small class="note">⭐ Assumes average inflation of <strong>6%</strong> per year</small>
-     <div id="inflationRateGroup" style="display:none; margin-top: 10px;">
-  <label for="inflationRate">📉 Inflation Rate (%):</label>
-  <input type="number" id="inflationRate" value="6" min="0" max="15" />
+      <label class="switch">
+        <input type="checkbox" id="adjustInflation" />
+        <span class="slider"></span>
+      </label>
+      <label for="adjustInflation" class="toggle-label">
+        Adjust for Inflation (Real Returns)<sup>⭐</sup>
+      </label>
+    </div>
 
-     <!-- Inflation Rate input (hidden unless toggle is checked) -->
+    <!-- Inflation Note -->
+    <small class="note">⭐ Assumes average inflation of <strong>6%</strong> per year</small>
 
-</div>
+    <!-- Optional Hidden Inflation Rate Input -->
+    <div id="inflationRateGroup" style="display:none; margin-top: 10px;">
+      <label for="inflationRate">📉 Inflation Rate (%):</label>
+      <input type="number" id="inflationRate" value="6" min="0" max="15" />
+    </div>
 
+    <!-- Calculate Button -->
     <button onclick="calculateSIP()">Calculate</button>
 
+    <!-- Result Outputs -->
     <div class="output" id="result"></div>
     <div id="resultInWords" style="margin-top: 10px; font-size: 1rem; color: #444;"></div>
     <div id="summary" style="margin-top: 15px; font-size: 1rem; color: #444;"></div>
     <canvas id="growthChart" style="margin-top: 20px; max-width: 100%;" width="400" height="200"></canvas>
   </div>
 
+  <!-- External Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
