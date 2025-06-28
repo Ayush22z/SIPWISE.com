@@ -279,3 +279,9 @@ body.dark-mode #summary {
   color: #e5f2ff;
   font-weight: 500;
 }
+/* 💡 Fix: Result box color in dark mode */
+body.dark-mode #result {
+  background-color: #1c1c1c;
+  border-color: #333;
+  color: #f0f0f0;
+}
