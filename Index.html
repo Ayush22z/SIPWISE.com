@@ -1,0 +1,31 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Realistic SIP Returns Tool</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    input, select, button { padding: 8px; margin: 5px 0; width: 100%; }
+    .output { margin-top: 20px; background: #f0f0f0; padding: 15px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+  <h1>📈 Realistic SIP Returns Tool</h1>
+
+  <label>💰 Monthly SIP (₹):</label>
+  <input type="number" id="sipAmount" placeholder="e.g., 5000">
+
+  <label>📅 Duration (Years):</label>
+  <input type="number" id="years" placeholder="e.g., 10">
+
+  <label>📊 CAGR (%):</label>
+  <input type="number" id="cagr" placeholder="e.g., 12">
+
+  <button onclick="calculateSIP()">Calculate Returns</button>
+
+  <div class="output" id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
