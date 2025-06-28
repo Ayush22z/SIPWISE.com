@@ -1,70 +1,67 @@
-/* Global styles */
+/* === Global Styles === */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f2f6f9;
   color: #333;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
-/* Center the calculator */
 .container {
-  max-width: 400px;
+  max-width: 420px;
   margin: 60px auto;
   background-color: #ffffff;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
-  animation: fadeIn 0.6s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Headline */
+/* === Headline === */
 h1 {
   font-size: 1.5rem;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-align: center;
+  font-weight: 700;
   background: linear-gradient(to right, #a1c4fd, #c2e9fb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: 700;
 }
 
-/* Form elements */
+/* === Form Elements === */
 label {
   font-weight: 600;
   display: block;
-  margin-top: 15px;
+  margin-top: 16px;
   margin-bottom: 6px;
 }
 
 input, select {
   width: 100%;
   padding: 10px;
+  font-size: 1rem;
+  background-color: #f9fbfc;
   border: 1px solid #d8e3e7;
   border-radius: 6px;
-  background-color: #f9fbfc;
-  font-size: 1rem;
   transition: 0.3s ease;
 }
 
 input:focus, select:focus {
   border-color: #aaccee;
-  outline: none;
   background-color: #ffffff;
+  outline: none;
 }
 
-/* Toggle inflation and dark mode */
+/* === Toggle Switches === */
 .toggle-row {
   display: flex;
   align-items: center;
-  margin-top: 20px;
-  margin-bottom: 10px;
   gap: 10px;
+  margin-top: 20px;
   font-size: 0.95rem;
   color: #444;
 }
 
-/* Custom toggle switch styling */
 .switch {
   position: relative;
   display: inline-block;
@@ -80,11 +77,12 @@ input:focus, select:focus {
 
 .slider {
   position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
   background-color: #ccc;
-  transition: 0.4s;
   border-radius: 34px;
+  transition: 0.4s;
+  cursor: pointer;
 }
 
 .slider:before {
@@ -95,19 +93,19 @@ input:focus, select:focus {
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: 0.4s;
   border-radius: 50%;
+  transition: 0.4s;
 }
 
-.switch input:checked + .slider {
+input:checked + .slider {
   background-color: #70b9ff;
 }
 
-.switch input:checked + .slider:before {
+input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Button */
+/* === Button === */
 button {
   margin-top: 20px;
   width: 100%;
@@ -116,8 +114,8 @@ button {
   border: none;
   border-radius: 6px;
   color: white;
-  font-weight: 600;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -126,7 +124,7 @@ button:hover {
   background-color: #50a7f5;
 }
 
-/* Result Box */
+/* === Output Results === */
 #result {
   margin-top: 20px;
   padding: 15px;
@@ -138,31 +136,21 @@ button:hover {
   box-shadow: 0 0 8px rgba(112, 185, 255, 0.2);
 }
 
-/* Enhance text in result sections */
 #resultInWords,
 #summary {
+  margin-top: 10px;
   color: #222;
   font-weight: 500;
-}
-
-#summary, #resultInWords {
-  margin-top: 10px;
   font-size: 1rem;
-  color: #444;
 }
 
-/* Chart Responsiveness */
+/* === Chart Canvas === */
 canvas {
   margin-top: 20px;
   max-width: 100%;
 }
 
-/* Notes */
-sup {
-  font-size: 0.75rem;
-  color: #888;
-  cursor: help;
-}
+/* === Notes & Sup === */
 .note {
   font-size: 0.75rem;
   color: #666;
@@ -171,7 +159,13 @@ sup {
   display: block;
 }
 
-/* Animations */
+sup {
+  font-size: 0.75rem;
+  color: #888;
+  cursor: help;
+}
+
+/* === Animations === */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -183,7 +177,7 @@ sup {
   }
 }
 
-/* 🌙 Dark Mode Styles */
+/* === DARK MODE === */
 body.dark-mode {
   background-color: #121212;
   color: #f0f0f0;
@@ -195,93 +189,46 @@ body.dark-mode .container {
 }
 
 body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
+body.dark-mode select {
   background-color: #2a2a2a;
   color: #fff;
   border: 1px solid #444;
 }
 
-body.dark-mode input::placeholder,
-body.dark-mode select::placeholder {
+body.dark-mode input::placeholder {
   color: #aaa;
-}
-
-body.dark-mode .note,
-body.dark-mode label,
-body.dark-mode #summary,
-body.dark-mode #resultInWords {
-  color: #ccc;
 }
 
 body.dark-mode button {
   background-color: #2979ff;
-  color: white;
 }
 
-body.dark-mode .choices__inner,
-body.dark-mode .choices__list--dropdown,
-body.dark-mode .choices__item {
-  background-color: #2a2a2a;
-  color: #fff;
-  border-color: #555;
+body.dark-mode .note,
+body.dark-mode label {
+  color: #ccc;
 }
 
-body.dark-mode .choices__list--dropdown .choices__item--selectable {
-  color: #fff;
-}
-/* 🌙 Fix Choices.js dropdown in dark mode */
-body.dark-mode .choices__list--dropdown,
-body.dark-mode .choices__list--dropdown .choices__item--selectable,
-body.dark-mode .choices__item {
-  background-color: #2a2a2a !important;
-  color: #fff !important;
-}
-
-body.dark-mode .choices__placeholder {
-  color: #aaa !important;
-}
-
-body.dark-mode .choices__list--dropdown {
-  border: 1px solid #444;
-}
-/* === Dark Mode Fix for Choices.js === */
-body.dark-mode .choices__inner {
-  background-color: #2a2a2a !important;
-  color: #ffffff !important;
-  border-color: #444 !important;
-}
-
-body.dark-mode .choices__list--dropdown,
-body.dark-mode .choices__list[role="listbox"] {
-  background-color: #2a2a2a !important;
-  border-color: #444 !important;
-}
-
-body.dark-mode .choices__item--selectable {
-  color: #fff !important;
-}
-
-body.dark-mode .choices__placeholder {
-  color: #aaa !important;
-}
 body.dark-mode #result {
-  background-color: #252f3a;
-  border: 1px solid #70b9ff;
+  background-color: #1c1c1c;
   color: #ffffff;
-  font-weight: 600;
+  border: 1px solid #70b9ff;
   box-shadow: 0 0 10px rgba(112, 185, 255, 0.3);
 }
 
-/* Result breakdown text */
 body.dark-mode #resultInWords,
 body.dark-mode #summary {
   color: #e5f2ff;
-  font-weight: 500;
 }
-/* 💡 Fix: Result box color in dark mode */
-body.dark-mode #result {
-  background-color: #1c1c1c;
-  border-color: #333;
-  color: #f0f0f0;
+
+/* === Choices.js Dark Mode Fix === */
+body.dark-mode .choices__inner,
+body.dark-mode .choices__list--dropdown,
+body.dark-mode .choices__item {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  border-color: #555 !important;
+}
+
+body.dark-mode .choices__placeholder {
+  color: #aaa !important;
 }
