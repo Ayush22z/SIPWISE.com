@@ -1,9 +1,8 @@
-// ✅ DOM ready setup
 document.addEventListener('DOMContentLoaded', function () {
   const fundDropdown = document.getElementById('fund');
   const cagrInput = document.getElementById('cagr');
-  const adjustCheckbox = document.getElementById('adjustInflation');
   const inflationGroup = document.getElementById('inflationRateGroup');
+  const adjustCheckbox = document.getElementById('adjustInflation');
 
   new Choices(fundDropdown); // Searchable dropdown
 
@@ -16,31 +15,26 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// ✅ Core SIP Calculation
+// ✅ Calculate SIP
 function calculateSIP() {
   const sip = parseFloat(document.getElementById('sipAmount').value);
   const years = parseFloat(document.getElementById('years').value);
-  const cagrInput = parseFloat(document.getElementById('cagr').value);
-  let cagr = cagrInput;
-
-  const adjustForInflation = document.getElementById('adjustInflation').checked;
-  let inflationRate = 0;
-
-  if (adjustForInflation) {
-    inflationRate = parseFloat(document.getElementById('inflationRate').value);
-    cagr = cagrInput - inflationRate;
-  }
+  const cagr = parseFloat(document.getElementById('cagr').value);
+  const adjust = document.getElementById('adjustInflation').checked;
+  const inflationRate = parseFloat(document.getElementById('inflationRate').value || 6);
 
   if (isNaN(sip) || isNaN(years) || isNaN(cagr)) {
-    document.getElementById('result').innerHTML = "❗ Please enter all values.";
+    document.getElementById('result').innerText = '❗ Please enter all values.';
     return;
   }
 
-  const effectiveCAGR = adjustForInflation
-    ? (((1 + cagrInput / 100) / (1 + inflationRate / 100)) - 1) * 100
-    : cagr;
-
   const months = years * 12;
+  let effectiveCAGR = cagr;
+
+  if (adjust) {
+    effectiveCAGR = (((1 + cagr / 100) / (1 + inflationRate / 100)) - 1) * 100;
+  }
+
   const monthlyRate = effectiveCAGR / 100 / 12;
   const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
 
@@ -49,28 +43,25 @@ function calculateSIP() {
   drawChart(sip, effectiveCAGR, years);
 
   const totalInvested = sip * 12 * years;
-  const wealthGained = futureValue - totalInvested;
+  const gained = futureValue - totalInvested;
 
-  const summaryDiv = document.getElementById('summary');
-  summaryDiv.innerHTML = `
+  document.getElementById('summary').innerHTML = `
     💼 <strong>Total Invested:</strong> ₹${formatNumberIndianStyle(totalInvested.toFixed(0))}<br>
-    💰 <strong>Final Value${adjustForInflation ? " (Inflation Adjusted)" : ""}:</strong> ₹${formatNumberIndianStyle(futureValue.toFixed(0))}<br>
-    📈 <strong>Wealth Gained:</strong> ₹${formatNumberIndianStyle(wealthGained.toFixed(0))}<br>
-    ${adjustForInflation ? `🧮 <em>Real CAGR Used:</em> ${effectiveCAGR.toFixed(2)}%` : ''}
+    💰 <strong>Final Value${adjust ? " (Inflation Adjusted)" : ""}:</strong> ₹${formatNumberIndianStyle(futureValue.toFixed(0))}<br>
+    📈 <strong>Wealth Gained:</strong> ₹${formatNumberIndianStyle(gained.toFixed(0))}<br>
+    ${adjust ? `🧮 <em>Real CAGR Used:</em> ${effectiveCAGR.toFixed(2)}%` : ''}
   `;
 }
 
-// ✅ Animated Number
+// ✅ Animate number display
 function animateValue(id, start, end, duration) {
-  let range = end - start;
-  let current = start;
-  let increment = range / (duration / 30);
   let obj = document.getElementById(id);
+  let current = start;
+  const increment = (end - start) / (duration / 30);
 
   const step = () => {
     current += increment;
     if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
-      current = end;
       obj.innerText = formatNumberIndianStyle(end.toFixed(2));
     } else {
       obj.innerText = formatNumberIndianStyle(current.toFixed(2));
@@ -80,12 +71,12 @@ function animateValue(id, start, end, duration) {
   step();
 }
 
-// ✅ Format Numbers in Indian Style
+// ✅ Indian comma formatting
 function formatNumberIndianStyle(x) {
   return Number(x).toLocaleString('en-IN');
 }
 
-// ✅ Convert to Words
+// ✅ Convert to words
 function showInWords(amount) {
   const wordsDiv = document.getElementById('resultInWords');
   const numeric = formatNumberIndianStyle(amount.toFixed(0));
@@ -93,12 +84,11 @@ function showInWords(amount) {
   wordsDiv.innerHTML = `💬 ₹ ${numeric}<br>(${wordy})`;
 }
 
-// ✅ Draw Chart with Chart.js
+// ✅ Chart Drawing
 function drawChart(sip, cagr, years) {
   const months = years * 12;
   const monthlyRate = cagr / 100 / 12;
-  let data = [];
-  let labels = [];
+  let data = [], labels = [];
 
   for (let i = 1; i <= years; i++) {
     let fv = sip * (((Math.pow(1 + monthlyRate, i * 12) - 1) / monthlyRate) * (1 + monthlyRate));
@@ -135,7 +125,7 @@ function drawChart(sip, cagr, years) {
   });
 }
 
-// ✅ Words Conversion for Indian Currency
+// ✅ Number to Indian Words
 function convertToIndianWords(num) {
   if (num === 0) return "Zero";
 
@@ -144,16 +134,9 @@ function convertToIndianWords(num) {
     "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
   const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
 
-  const getWords = (n) => {
-    if (n > 19) {
-      return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "");
-    } else {
-      return ones[n];
-    }
-  };
+  const getWords = (n) => n > 19 ? tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "") : ones[n];
 
   let result = "";
-
   const crore = Math.floor(num / 10000000);
   const lakh = Math.floor((num % 10000000) / 100000);
   const thousand = Math.floor((num % 100000) / 1000);
@@ -164,10 +147,7 @@ function convertToIndianWords(num) {
   if (lakh) result += getWords(lakh) + " Lakh ";
   if (thousand) result += getWords(thousand) + " Thousand ";
   if (hundred) result += getWords(hundred) + " Hundred ";
-  if (rest) {
-    if (result !== "") result += "and ";
-    result += getWords(rest);
-  }
+  if (rest) result += (result !== "" ? "and " : "") + getWords(rest);
 
   return result.trim();
 }
