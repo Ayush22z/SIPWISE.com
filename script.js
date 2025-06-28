@@ -41,6 +41,14 @@ function calculateSIP() {
   const monthlyRate = effectiveCAGR / 100 / 12;
   const futureValue = sip * (((Math.pow(1 + monthlyRate, months)) - 1) / monthlyRate) * (1 + monthlyRate);
 
+document.addEventListener('DOMContentLoaded', function () {
+  const adjustCheckbox = document.getElementById('adjustInflation');
+  const inflationGroup = document.getElementById('inflationRateGroup');
+
+  adjustCheckbox.addEventListener('change', function () {
+    inflationGroup.style.display = this.checked ? 'block' : 'none';
+  });
+});
   animateValue('result', 0, futureValue, 1000);
   showInWords(futureValue);
   drawChart(sip, effectiveCAGR, years);
