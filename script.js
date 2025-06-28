@@ -36,7 +36,7 @@ function calculateSIP() {
   drawChart(sip, cagr, years);
 }
 
-// Animation for number increase
+// Animate number counter
 function animateValue(id, start, end, duration) {
   let range = end - start;
   let current = start;
@@ -56,24 +56,20 @@ function animateValue(id, start, end, duration) {
   step();
 }
 
-// Display amount in words
+// Show result in both number and words
 function showInWords(amount) {
   const wordsDiv = document.getElementById('resultInWords');
-  const formatter = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  });
-  const formatted = formatter.format(amount);
-  wordsDiv.innerText = `💬 ${formatted} (in words)`;
+  const numeric = formatNumberIndianStyle(amount.toFixed(0));
+  const wordy = convertToIndianWords(Math.floor(amount));
+  wordsDiv.innerHTML = `💬 ₹ ${numeric}<br>(${wordy})`;
 }
 
-// Indian formatting style
+// Format with Indian comma style
 function formatNumberIndianStyle(x) {
   return Number(x).toLocaleString('en-IN');
 }
 
-// Draw chart with CAGR data
+// Draw CAGR SIP chart
 function drawChart(sip, cagr, years) {
   const months = years * 12;
   const monthlyRate = cagr / 100 / 12;
@@ -87,7 +83,7 @@ function drawChart(sip, cagr, years) {
   }
 
   const ctx = document.getElementById('growthChart').getContext('2d');
-  if (window.chart) window.chart.destroy(); // Reset old chart
+  if (window.chart) window.chart.destroy();
   window.chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -113,4 +109,42 @@ function drawChart(sip, cagr, years) {
       }
     }
   });
+}
+
+// Convert numbers to Indian words
+function convertToIndianWords(num) {
+  if (num === 0) return "Zero";
+
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen",
+    "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+  const getWords = (n) => {
+    if (n > 19) {
+      return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "");
+    } else {
+      return ones[n];
+    }
+  };
+
+  let result = "";
+
+  const crore = Math.floor(num / 10000000);
+  const lakh = Math.floor((num % 10000000) / 100000);
+  const thousand = Math.floor((num % 100000) / 1000);
+  const hundred = Math.floor((num % 1000) / 100);
+  const rest = num % 100;
+
+  if (crore) result += getWords(crore) + " Crore ";
+  if (lakh) result += getWords(lakh) + " Lakh ";
+  if (thousand) result += getWords(thousand) + " Thousand ";
+  if (hundred) result += getWords(hundred) + " Hundred ";
+
+  if (rest) {
+    if (result !== "") result += "and ";
+    result += getWords(rest);
+  }
+
+  return result.trim();
 }
