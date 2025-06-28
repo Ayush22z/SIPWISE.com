@@ -3,20 +3,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const cagrInput = document.getElementById('cagr');
 
   // Initialize Choices.js
-  const choices = new Choices(fundDropdown);
+  new Choices(fundDropdown);
 
-  // Update CAGR field based on selected fund
+  // Update CAGR field when fund is selected
   fundDropdown.addEventListener('change', function () {
     const selectedValue = this.value;
-    if (selectedValue) {
-      cagrInput.value = selectedValue;
-    } else {
-      cagrInput.value = '';
-    }
+    cagrInput.value = selectedValue || '';
   });
 });
 
-// Core SIP calculation function
+// Core SIP calculation
 function calculateSIP() {
   const sip = parseFloat(document.getElementById('sipAmount').value);
   const years = parseFloat(document.getElementById('years').value);
@@ -34,6 +30,16 @@ function calculateSIP() {
   animateValue('result', 0, futureValue, 1000);
   showInWords(futureValue);
   drawChart(sip, cagr, years);
+
+  // Total Invested vs Final Value
+  const totalInvested = sip * 12 * years;
+  const wealthGained = futureValue - totalInvested;
+  const summaryDiv = document.getElementById('summary');
+  summaryDiv.innerHTML = `
+    💼 <strong>Total Invested:</strong> ₹${formatNumberIndianStyle(totalInvested.toFixed(0))}<br>
+    💰 <strong>Final Value:</strong> ₹${formatNumberIndianStyle(futureValue.toFixed(0))}<br>
+    📈 <strong>Wealth Gained:</strong> ₹${formatNumberIndianStyle(wealthGained.toFixed(0))}
+  `;
 }
 
 // Animate number counter
@@ -56,7 +62,12 @@ function animateValue(id, start, end, duration) {
   step();
 }
 
-// Show result in both number and words
+// Format number with Indian commas
+function formatNumberIndianStyle(x) {
+  return Number(x).toLocaleString('en-IN');
+}
+
+// Show result in number and words
 function showInWords(amount) {
   const wordsDiv = document.getElementById('resultInWords');
   const numeric = formatNumberIndianStyle(amount.toFixed(0));
@@ -64,20 +75,7 @@ function showInWords(amount) {
   wordsDiv.innerHTML = `💬 ₹ ${numeric}<br>(${wordy})`;
 }
 
-// Format with Indian comma style
-function formatNumberIndianStyle(x) {
-  return Number(x).toLocaleString('en-IN');
-}
-// Show Total Invested vs Final Value
-const totalInvested = sip * 12 * years;
-const wealthGained = amount - totalInvested;
-const summaryDiv = document.getElementById('summary');
-summaryDiv.innerHTML = `
-  💼 Total Invested: ₹${formatNumberIndianStyle(totalInvested.toFixed(0))}<br>
-  💰 Final Value: ₹${formatNumberIndianStyle(amount.toFixed(0))}<br>
-  📈 Wealth Gained: ₹${formatNumberIndianStyle(wealthGained.toFixed(0))}
-`;
-// Draw CAGR SIP chart
+// Chart: SIP growth per year
 function drawChart(sip, cagr, years) {
   const months = years * 12;
   const monthlyRate = cagr / 100 / 12;
@@ -119,7 +117,7 @@ function drawChart(sip, cagr, years) {
   });
 }
 
-// Convert numbers to Indian words
+// Convert number to Indian currency words
 function convertToIndianWords(num) {
   if (num === 0) return "Zero";
 
@@ -148,7 +146,6 @@ function convertToIndianWords(num) {
   if (lakh) result += getWords(lakh) + " Lakh ";
   if (thousand) result += getWords(thousand) + " Thousand ";
   if (hundred) result += getWords(hundred) + " Hundred ";
-
   if (rest) {
     if (result !== "") result += "and ";
     result += getWords(rest);
