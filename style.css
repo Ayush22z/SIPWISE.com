@@ -216,3 +216,8 @@ canvas {
 .switch input:checked + .slider:before {
   transform: translateX(22px);
 }
+sup {
+  font-size: 0.75rem;
+  color: #888;
+  cursor: help;
+}
