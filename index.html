@@ -125,10 +125,13 @@
     <input type="number" id="cagr" placeholder="Auto or Manual" />
 
     <!-- ⚡ New inflation toggle added here -->
-    <label style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
-      <input type="checkbox" id="adjustInflation" />
-      Adjust for Inflation (real returns)
-    </label>
+    <div class="toggle-row">
+  <label class="switch">
+    <input type="checkbox" id="adjustInflation" />
+    <span class="slider"></span>
+  </label>
+  <label for="adjustInflation" class="toggle-label">Adjust for Inflation (Real Returns)</label>
+</div>
 
     <button onclick="calculateSIP()">Calculate</button>
 
