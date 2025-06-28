@@ -16,6 +16,7 @@ function calculateSIP() {
   document.getElementById('result').innerHTML =
     `<h3>Expected Value: ₹${futureValue.toFixed(2)}</h3>`;
 }
+// Set CAGR value based on selected fund
 document.getElementById('fund').addEventListener('change', function () {
   document.getElementById('cagr').value = this.value;
 });
