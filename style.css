@@ -1,82 +1,78 @@
-/* Global body styling */
+/* Global styles */
 body {
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background-color: #f4f7f8;
-  padding: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
-
-/* Container box */
-.container {
-  background-color: #ffffff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-width: 420px;
-  width: 100%;
-}
-
-/* Heading */
-h1 {
-  text-align: center;
-  font-size: 24px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f2f6f9;
   color: #333;
-  margin-bottom: 30px;
+  padding: 0;
+  margin: 0;
 }
 
-/* Labels and form fields */
+/* Center the calculator */
+.container {
+  max-width: 400px;
+  margin: 60px auto;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* Headline */
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Form elements */
 label {
+  font-weight: 600;
   display: block;
   margin-top: 15px;
   margin-bottom: 6px;
-  font-weight: bold;
-  color: #444;
 }
 
 input, select {
   width: 100%;
-  padding: 10px 12px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #fdfdfd;
-  transition: border-color 0.2s ease;
+  padding: 10px;
+  border: 1px solid #d8e3e7;
+  border-radius: 6px;
+  background-color: #f9fbfc;
+  font-size: 1rem;
+  transition: 0.3s ease;
 }
 
 input:focus, select:focus {
-  border-color: #a0c4ff;
+  border-color: #aaccee;
   outline: none;
+  background-color: #ffffff;
 }
 
 /* Button */
 button {
+  margin-top: 20px;
   width: 100%;
   padding: 12px;
-  background-color: #80bfff;
-  color: white;
+  background-color: #70b9ff;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  margin-top: 20px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #5fa8ff;
+  background-color: #50a7f5;
 }
 
-/* Result box */
+/* Result Box */
 #result {
   margin-top: 20px;
   padding: 15px;
-  background-color: #e3f2fd;
-  border-radius: 8px;
-  color: #333;
+  background-color: #e9f5ff;
+  border: 1px solid #c8e5ff;
+  border-radius: 6px;
   font-weight: 500;
-  font-size: 15px;
 }
