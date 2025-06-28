@@ -221,3 +221,18 @@ body.dark-mode .choices__item {
 body.dark-mode .choices__list--dropdown .choices__item--selectable {
   color: #fff;
 }
+/* 🌙 Fix Choices.js dropdown in dark mode */
+body.dark-mode .choices__list--dropdown,
+body.dark-mode .choices__list--dropdown .choices__item--selectable,
+body.dark-mode .choices__item {
+  background-color: #2a2a2a !important;
+  color: #fff !important;
+}
+
+body.dark-mode .choices__placeholder {
+  color: #aaa !important;
+}
+
+body.dark-mode .choices__list--dropdown {
+  border: 1px solid #444;
+}
