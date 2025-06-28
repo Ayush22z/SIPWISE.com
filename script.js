@@ -16,4 +16,6 @@ function calculateSIP() {
   document.getElementById('result').innerHTML =
     `<h3>Expected Value: ₹${futureValue.toFixed(2)}</h3>`;
 }
-
+document.getElementById('fund').addEventListener('change', function () {
+  document.getElementById('cagr').value = this.value;
+});
