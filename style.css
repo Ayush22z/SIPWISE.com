@@ -221,3 +221,10 @@ sup {
   color: #888;
   cursor: help;
 }
+.note {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: -10px;
+  margin-left: 56px; /* aligns under label */
+  display: block;
+}
