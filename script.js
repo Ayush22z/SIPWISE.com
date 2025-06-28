@@ -15,7 +15,7 @@ function calculateSIP() {
 
 animateValue('result', 0, futureValue, 1000);
   function showInWords(amount) {
-  const wordsDiv = document.getElementById("resultWords");
+  const wordsDiv = document.getElementById('resultInWords');
   const formatter = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
