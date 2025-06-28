@@ -28,8 +28,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // ✅ Dark Mode Toggle
   darkToggle.addEventListener('change', function () {
     document.body.classList.toggle('dark-mode', this.checked);
-    updateChartTheme(); // 🔄 Refresh chart theme
+    updateChartTheme();
   });
+
+  // ✅ Bind Calculate Button
+  document.getElementById('calculateBtn').addEventListener('click', calculateSIP);
 });
 
 let chart; // Chart instance
@@ -58,7 +61,12 @@ function calculateSIP() {
   const wealthGained = futureValue - totalInvested;
 
   // Format currency
-  const format = num => num.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+  const format = num => num.toLocaleString('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  });
+
   const result = document.getElementById('result');
   result.innerHTML = `
     💬 ${format(futureValue)}<br>
@@ -98,12 +106,12 @@ function calculateSIP() {
       scales: {
         x: {
           ticks: {
-            color: getComputedStyle(document.body).getPropertyValue('--text-color') || (document.body.classList.contains('dark-mode') ? '#fff' : '#333')
+            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
           }
         },
         y: {
           ticks: {
-            color: getComputedStyle(document.body).getPropertyValue('--text-color') || (document.body.classList.contains('dark-mode') ? '#fff' : '#333')
+            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
           }
         }
       },
