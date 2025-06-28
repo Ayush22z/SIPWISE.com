@@ -219,7 +219,8 @@ body.dark-mode #result {
 
 body.dark-mode #resultInWords,
 body.dark-mode #summary {
-  color: #e5f2ff;
+  color: #ffffff;
+  font-weight: 600;
 }
 
 /* === Choices.js Dark Mode Fix === */
