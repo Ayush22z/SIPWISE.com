@@ -231,24 +231,33 @@ sup {
 /* 🌙 Dark Mode Styles */
 body.dark-mode {
   background-color: #121212;
-  color: #f5f5f5;
+  color: #f0f0f0;
 }
 
 body.dark-mode .container {
   background-color: #1e1e1e;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
 }
 
 body.dark-mode input,
-body.dark-mode select,
-body.dark-mode button {
+body.dark-mode select {
   background-color: #2a2a2a;
   color: #fff;
   border: 1px solid #444;
 }
 
-body.dark-mode label,
 body.dark-mode .note,
-body.dark-mode h1 {
-  color: #ddd;
+body.dark-mode label {
+  color: #ccc;
+}
+
+body.dark-mode button {
+  background-color: #2979ff;
+  color: white;
+}
+
+body.dark-mode .choices__inner {
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
 }
