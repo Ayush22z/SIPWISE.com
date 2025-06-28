@@ -176,3 +176,7 @@ function convertToIndianWords(num) {
 
   return result.trim();
 }
+document.getElementById('adjustInflation').addEventListener('change', function () {
+  const showInput = document.getElementById('inflationRateGroup');
+  showInput.style.display = this.checked ? 'block' : 'none';
+});
