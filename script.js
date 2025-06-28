@@ -52,3 +52,43 @@ function animateValue(id, start, end, duration) {
 function formatNumberIndianStyle(x) {
   return Number(x).toLocaleString('en-IN');
 }
+function drawChart(sip, cagr, years) {
+  const months = years * 12;
+  const monthlyRate = cagr / 100 / 12;
+  let data = [];
+  let labels = [];
+
+  for (let i = 1; i <= years; i++) {
+    let fv = sip * (((Math.pow(1 + monthlyRate, i * 12) - 1) / monthlyRate) * (1 + monthlyRate));
+    data.push(Math.round(fv));
+    labels.push(`Year ${i}`);
+  }
+
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  if (window.chart) window.chart.destroy(); // Clear old chart
+  window.chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'SIP Growth (₹)',
+        data: data,
+        borderColor: '#42a5f5',
+        backgroundColor: 'rgba(66, 165, 245, 0.2)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: value => value.toLocaleString('en-IN')
+          }
+        }
+      }
+    }
+  });
+}
