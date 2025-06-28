@@ -10,22 +10,29 @@
   </style>
 </head>
 <body>
-
   <h1>📈 Realistic SIP Returns Tool</h1>
 
-  <label>💰 Monthly SIP (₹):</label>
-  <input type="number" id="sipAmount" placeholder="e.g., 5000">
+  <label for="fund">Select Fund:</label>
+  <select id="fund">
+    <option value="12">Axis Bluechip (12%)</option>
+    <option value="14">Nippon Smallcap (14%)</option>
+    <option value="10">Parag Parikh Flexi (10%)</option>
+  </select>
 
-  <label>📅 Duration (Years):</label>
-  <input type="number" id="years" placeholder="e.g., 10">
+  <br><br>
 
-  <label>📊 CAGR (%):</label>
-  <input type="number" id="cagr" placeholder="e.g., 12">
+  <label for="amount">Monthly Investment (₹):</label>
+  <input type="number" id="amount" placeholder="e.g. 5000"><br>
 
-  <button onclick="calculateSIP()">Calculate Returns</button>
+  <label for="years">Investment Duration (years):</label>
+  <input type="number" id="years" placeholder="e.g. 10"><br>
 
-  <div class="output" id="result"></div>
+  <button onclick="calculateSIP()">Calculate</button>
+
+  <div id="result" class="output"></div>
 
   <script src="script.js"></script>
 </body>
+
+ 
 </html>
