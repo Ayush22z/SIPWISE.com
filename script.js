@@ -36,6 +36,7 @@ function calculateSIP() {
   const sip = parseFloat(document.getElementById('sip').value);
   const years = parseFloat(document.getElementById('years').value);
   let cagr = parseFloat(document.getElementById('cagr').value);
+  const deviation = parseFloat(document.getElementById('deviation')?.value || '0');
   const adjustInflation = document.getElementById('adjustInflation').checked;
   const inflationRate = parseFloat(document.getElementById('inflationRate').value);
 
@@ -49,8 +50,11 @@ function calculateSIP() {
   }
 
   const months = years * 12;
-  const r = cagr / 100 / 12;
-  const futureValue = sip * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+  const baseRate = cagr / 100 / 12;
+  const highRate = (cagr + deviation) / 100 / 12;
+  const lowRate = (cagr - deviation) / 100 / 12;
+
+  const futureValue = sip * ((Math.pow(1 + baseRate, months) - 1) / baseRate) * (1 + baseRate);
   const totalInvested = sip * months;
   const wealthGained = futureValue - totalInvested;
 
@@ -60,19 +64,29 @@ function calculateSIP() {
     maximumFractionDigits: 0
   });
 
-  document.getElementById('result').innerHTML = `💬 ${format(futureValue)}`;
+  document.getElementById('result').innerHTML = `ð¬ ${format(futureValue)}`;
   document.getElementById('resultInWords').innerText = `(${convertToWords(futureValue)})`;
   document.getElementById('summary').innerHTML = `
-    📦 Total Invested: ${format(totalInvested)}<br>
-    💰 Final Value: ${format(futureValue)}<br>
-    🧾 Wealth Gained: ${format(wealthGained)}
+    ð¦ Total Invested: ${format(totalInvested)}<br>
+    ð° Final Value: ${format(futureValue)}<br>
+    ð§¾ Wealth Gained: ${format(wealthGained)}<br>
+    ð Best Case: ${format(
+      sip * ((Math.pow(1 + highRate, months) - 1) / highRate) * (1 + highRate)
+    )}<br>
+    ð Worst Case: ${format(
+      sip * ((Math.pow(1 + lowRate, months) - 1) / lowRate) * (1 + lowRate)
+    )}
   `;
 
   const labels = Array.from({ length: years }, (_, i) => `Year ${i + 1}`);
-  const data = labels.map((_, i) => {
+  const calculateGrowth = rate => labels.map((_, i) => {
     const n = (i + 1) * 12;
-    return sip * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+    return sip * ((Math.pow(1 + rate, n) - 1) / rate) * (1 + rate);
   });
+
+  const baseData = calculateGrowth(baseRate);
+  const highData = calculateGrowth(highRate);
+  const lowData = calculateGrowth(lowRate);
 
   const ctx = document.getElementById('myChart').getContext('2d');
   if (chart) chart.destroy();
@@ -81,14 +95,34 @@ function calculateSIP() {
     type: 'line',
     data: {
       labels,
-      datasets: [{
-        label: 'SIP Growth (₹)',
-        data,
-        borderColor: '#70b9ff',
-        tension: 0.3,
-        pointRadius: 4,
-        fill: false
-      }]
+      datasets: [
+        {
+          label: 'Expected (â¹)',
+          data: baseData,
+          borderColor: '#70b9ff',
+          tension: 0.3,
+          pointRadius: 3,
+          fill: false
+        },
+        {
+          label: 'Best Case (â¹)',
+          data: highData,
+          borderColor: '#4caf50',
+          tension: 0.3,
+          pointRadius: 0,
+          borderDash: [5, 5],
+          fill: false
+        },
+        {
+          label: 'Worst Case (â¹)',
+          data: lowData,
+          borderColor: '#f44336',
+          tension: 0.3,
+          pointRadius: 0,
+          borderDash: [5, 5],
+          fill: false
+        }
+      ]
     },
     options: {
       responsive: true,
