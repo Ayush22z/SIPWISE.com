@@ -250,3 +250,30 @@ label[for="deviation"] {
 body.dark-mode label[for="deviation"] {
   color: #70b9ff;
 }
+/* === Choices.js Search Fix === */
+.choices__inner {
+  min-height: 44px;
+  border-radius: 6px !important;
+  padding: 6px 10px;
+  font-size: 1rem;
+  border-color: #d8e3e7;
+}
+
+.choices__input {
+  padding: 4px;
+  font-size: 1rem;
+}
+
+.choices[data-type*='select-one'] .choices__inner {
+  padding-bottom: 4px;
+}
+
+.choices__list--dropdown .choices__item--selectable {
+  padding: 8px 10px;
+  font-size: 0.95rem;
+}
+
+/* Restore placeholder styling */
+.choices__placeholder {
+  color: #888;
+}
