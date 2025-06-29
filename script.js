@@ -4,15 +4,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const adjustCheckbox = document.getElementById('adjustInflation');
   const inflationGroup = document.getElementById('inflationRateGroup');
   const darkToggle = document.getElementById('darkModeToggle');
+  const calculateBtn = document.getElementById('calculateBtn');
 
-  new Choices(fundDropdown, {
+  const choices = new Choices(fundDropdown, {
     searchEnabled: true,
     itemSelectText: '',
     shouldSort: false
   });
 
-  fundDropdown.addEventListener('change', function () {
-    const selected = parseFloat(this.value);
+  // Set initial CAGR from default selection
+  const initialValue = parseFloat(fundDropdown.value);
+  if (!isNaN(initialValue)) {
+    cagrInput.value = initialValue;
+  }
+
+  // Event when user changes fund
+  fundDropdown.addEventListener('change', function (event) {
+    const selected = parseFloat(event.detail.value); // ✅ Choices.js uses event.detail
     if (!isNaN(selected)) {
       cagrInput.value = selected;
     }
@@ -27,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateChartTheme();
   });
 
-  document.getElementById('calculateBtn').addEventListener('click', calculateSIP);
+  calculateBtn.addEventListener('click', calculateSIP);
 });
 
 let chart;
@@ -114,7 +122,7 @@ function calculateSIP() {
           fill: false
         },
         {
-          label: 'Worst Case (₹)'
+          label: 'Worst Case (₹)',
           data: lowData,
           borderColor: '#f44336',
           tension: 0.3,
