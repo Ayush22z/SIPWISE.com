@@ -97,7 +97,7 @@ function calculateSIP() {
       labels,
       datasets: [
         {
-          label: 'Expected (â¹)',
+          label: 'Expected (₹)',
           data: baseData,
           borderColor: '#70b9ff',
           tension: 0.3,
@@ -105,7 +105,7 @@ function calculateSIP() {
           fill: false
         },
         {
-          label: 'Best Case (â¹)',
+          label: 'Best Case (₹)',
           data: highData,
           borderColor: '#4caf50',
           tension: 0.3,
@@ -114,7 +114,7 @@ function calculateSIP() {
           fill: false
         },
         {
-          label: 'Worst Case (â¹)',
+          label: 'Worst Case (₹)'
           data: lowData,
           borderColor: '#f44336',
           tension: 0.3,
