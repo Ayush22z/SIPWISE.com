@@ -64,16 +64,16 @@ function calculateSIP() {
     maximumFractionDigits: 0
   });
 
-  document.getElementById('result').innerHTML = `ð¬ ${format(futureValue)}`;
+  document.getElementById('result').innerHTML = `💰 ${format(futureValue)}`;
   document.getElementById('resultInWords').innerText = `(${convertToWords(futureValue)})`;
   document.getElementById('summary').innerHTML = `
-    ð¦ Total Invested: ${format(totalInvested)}<br>
-    ð° Final Value: ${format(futureValue)}<br>
-    ð§¾ Wealth Gained: ${format(wealthGained)}<br>
-    ð Best Case: ${format(
+    📦 Total Invested: ${format(totalInvested)}<br>
+    💸 Final Value: ${format(futureValue)}<br>
+    🧾 Wealth Gained: ${format(wealthGained)}<br>
+    📈 Best Case: ${format(
       sip * ((Math.pow(1 + highRate, months) - 1) / highRate) * (1 + highRate)
     )}<br>
-    ð Worst Case: ${format(
+    📉 Worst Case: ${format(
       sip * ((Math.pow(1 + lowRate, months) - 1) / lowRate) * (1 + lowRate)
     )}
   `;
