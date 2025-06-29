@@ -12,26 +12,27 @@ document.addEventListener('DOMContentLoaded', () => {
     shouldSort: false
   });
 
-  // Set initial CAGR from default selection
-  const initialValue = parseFloat(fundDropdown.value);
-  if (!isNaN(initialValue)) {
-    cagrInput.value = initialValue;
-  }
-
-  // Event when user changes fund
-  fundDropdown.addEventListener('change', function (event) {
-    const selected = parseFloat(event.detail.value); // ✅ Choices.js uses event.detail
-    if (!isNaN(selected)) {
-      cagrInput.value = selected;
+  // Handle auto-update CAGR when selecting a fund
+  fundDropdown.addEventListener('change', () => {
+    const selectedOption = fundDropdown.options[fundDropdown.selectedIndex];
+    const cagr = parseFloat(selectedOption.value);
+    if (!isNaN(cagr)) {
+      cagrInput.value = cagr;
     }
   });
 
-  adjustCheckbox.addEventListener('change', function () {
-    inflationGroup.style.display = this.checked ? 'block' : 'none';
+  // Trigger initial CAGR update on page load
+  const initialCAGR = parseFloat(fundDropdown.options[fundDropdown.selectedIndex].value);
+  if (!isNaN(initialCAGR)) {
+    cagrInput.value = initialCAGR;
+  }
+
+  adjustCheckbox.addEventListener('change', () => {
+    inflationGroup.style.display = adjustCheckbox.checked ? 'block' : 'none';
   });
 
-  darkToggle.addEventListener('change', function () {
-    document.body.classList.toggle('dark-mode', this.checked);
+  darkToggle.addEventListener('change', () => {
+    document.body.classList.toggle('dark-mode', darkToggle.checked);
     updateChartTheme();
   });
 
@@ -44,9 +45,9 @@ function calculateSIP() {
   const sip = parseFloat(document.getElementById('sip').value);
   const years = parseFloat(document.getElementById('years').value);
   let cagr = parseFloat(document.getElementById('cagr').value);
-  const deviation = parseFloat(document.getElementById('deviation')?.value || '0');
+  const deviation = parseFloat(document.getElementById('deviation').value || '0');
+  const inflationRate = parseFloat(document.getElementById('inflationRate').value || '0');
   const adjustInflation = document.getElementById('adjustInflation').checked;
-  const inflationRate = parseFloat(document.getElementById('inflationRate').value);
 
   if (adjustInflation && !isNaN(inflationRate)) {
     cagr -= inflationRate;
@@ -62,7 +63,9 @@ function calculateSIP() {
   const highRate = (cagr + deviation) / 100 / 12;
   const lowRate = (cagr - deviation) / 100 / 12;
 
-  const futureValue = sip * ((Math.pow(1 + baseRate, months) - 1) / baseRate) * (1 + baseRate);
+  const fv = r => sip * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+
+  const futureValue = fv(baseRate);
   const totalInvested = sip * months;
   const wealthGained = futureValue - totalInvested;
 
@@ -72,29 +75,25 @@ function calculateSIP() {
     maximumFractionDigits: 0
   });
 
-  document.getElementById('result').innerHTML = `💰 ${format(futureValue)}`;
+  document.getElementById('result').innerText = `💰 ${format(futureValue)}`;
   document.getElementById('resultInWords').innerText = `(${convertToWords(futureValue)})`;
   document.getElementById('summary').innerHTML = `
     📦 Total Invested: ${format(totalInvested)}<br>
     💸 Final Value: ${format(futureValue)}<br>
     🧾 Wealth Gained: ${format(wealthGained)}<br>
-    📈 Best Case: ${format(
-      sip * ((Math.pow(1 + highRate, months) - 1) / highRate) * (1 + highRate)
-    )}<br>
-    📉 Worst Case: ${format(
-      sip * ((Math.pow(1 + lowRate, months) - 1) / lowRate) * (1 + lowRate)
-    )}
+    📈 Best Case: ${format(fv(highRate))}<br>
+    📉 Worst Case: ${format(fv(lowRate))}
   `;
 
   const labels = Array.from({ length: years }, (_, i) => `Year ${i + 1}`);
-  const calculateGrowth = rate => labels.map((_, i) => {
+  const grow = r => labels.map((_, i) => {
     const n = (i + 1) * 12;
-    return sip * ((Math.pow(1 + rate, n) - 1) / rate) * (1 + rate);
+    return sip * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
   });
 
-  const baseData = calculateGrowth(baseRate);
-  const highData = calculateGrowth(highRate);
-  const lowData = calculateGrowth(lowRate);
+  const baseData = grow(baseRate);
+  const highData = grow(highRate);
+  const lowData = grow(lowRate);
 
   const ctx = document.getElementById('myChart').getContext('2d');
   if (chart) chart.destroy();
@@ -157,6 +156,15 @@ function calculateSIP() {
   });
 }
 
+function updateChartTheme() {
+  if (!chart) return;
+  const dark = document.body.classList.contains('dark-mode');
+  chart.options.scales.x.ticks.color = dark ? '#fff' : '#333';
+  chart.options.scales.y.ticks.color = dark ? '#fff' : '#333';
+  chart.options.plugins.legend.labels.color = dark ? '#fff' : '#333';
+  chart.update();
+}
+
 function convertToWords(num) {
   const raw = parseInt(num.toLocaleString('en-IN', {
     maximumFractionDigits: 0
@@ -189,13 +197,4 @@ function convertToWords(num) {
   if (rest) words.push('and ' + getWords(rest));
 
   return words.join(' ');
-}
-
-function updateChartTheme() {
-  if (!chart) return;
-  const dark = document.body.classList.contains('dark-mode');
-  chart.options.scales.x.ticks.color = dark ? '#fff' : '#333';
-  chart.options.scales.y.ticks.color = dark ? '#fff' : '#333';
-  chart.options.plugins.legend.labels.color = dark ? '#fff' : '#333';
-  chart.update();
 }
