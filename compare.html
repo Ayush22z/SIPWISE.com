@@ -10,22 +10,12 @@
     <h1>📊 Compare Mutual Fund Returns</h1>
     <p style="color: #666; font-size: 0.95rem;">Select two funds below to see how their SIP returns stack up side-by-side.</p>
 
-    <!-- Dropdowns for fund selection -->
+    <!-- Dropdowns -->
     <label for="fund1">Fund 1:</label>
-    <select id="fund1">
-      <option value="22.99">Nippon India Small Cap Fund</option>
-      <option value="21.74">Quant ELSS Tax Saver Fund</option>
-      <option value="20.76">Quant Small Cap Fund</option>
-      <option value="20.60">HSBC Small Cap Fund</option>
-    </select>
+    <select id="fund1"></select>
 
     <label for="fund2">Fund 2:</label>
-    <select id="fund2">
-      <option value="22.99">Nippon India Small Cap Fund</option>
-      <option value="21.74">Quant ELSS Tax Saver Fund</option>
-      <option value="20.76">Quant Small Cap Fund</option>
-      <option value="20.60">HSBC Small Cap Fund</option>
-    </select>
+    <select id="fund2"></select>
 
     <label for="sipAmount">Monthly SIP (₹):</label>
     <input type="number" id="sipAmount" value="500">
@@ -37,36 +27,89 @@
 
     <canvas id="compareChart"></canvas>
 
-    <div id="compareResult"></div>
+    <div id="compareResult" style="margin-top: 15px;"></div>
   </div>
 
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Fund Data + Logic -->
   <script>
+    // ✅ Step 1: Real Fund Data (name => CAGR)
+    const fundData = {
+      "Nippon India Small Cap Fund": 22.99,
+      "Quant ELSS Tax Saver Fund": 21.74,
+      "Quant Small Cap Fund": 20.76,
+      "HSBC Small Cap Fund": 20.60,
+      "SBI Small Cap Fund": 20.37
+      // Add more funds here
+    };
+
+    // ✅ Step 2: Populate dropdowns
+    window.onload = () => {
+      const fund1 = document.getElementById('fund1');
+      const fund2 = document.getElementById('fund2');
+
+      Object.entries(fundData).forEach(([name, cagr]) => {
+        const opt1 = new Option(name, name);
+        const opt2 = new Option(name, name);
+        fund1.add(opt1);
+        fund2.add(opt2);
+      });
+
+      fund1.selectedIndex = 1;
+      fund2.selectedIndex = 2;
+    };
+
+    // ✅ Step 3: SIP Value Calculator
+    function calculateSIPValue(monthlySIP, years, cagr) {
+      const totalMonths = years * 12;
+      const monthlyRate = cagr / 12 / 100;
+      let value = 0;
+      for (let i = 0; i < totalMonths; i++) {
+        value = (value + monthlySIP) * (1 + monthlyRate);
+      }
+      return Math.round(value);
+    }
+
+    // ✅ Step 4: Compare Logic & Chart
     function compareFunds() {
       const sip = parseFloat(document.getElementById('sipAmount').value);
       const years = parseInt(document.getElementById('years').value);
-      const months = years * 12;
-      const cagr1 = parseFloat(document.getElementById('fund1').value) / 100;
-      const cagr2 = parseFloat(document.getElementById('fund2').value) / 100;
+      const fund1Name = document.getElementById('fund1').value;
+      const fund2Name = document.getElementById('fund2').value;
 
-      function calculateFinalValue(cagr) {
-        let fv = 0;
-        for (let i = 0; i < months; i++) {
-          fv += sip * Math.pow(1 + cagr / 12, months - i);
-        }
-        return Math.round(fv);
+      const cagr1 = fundData[fund1Name];
+      const cagr2 = fundData[fund2Name];
+
+      const months = years * 12;
+
+      // Monthly value build-up for graph
+      const data1 = [];
+      const data2 = [];
+      let val1 = 0, val2 = 0;
+      const monthlyRate1 = cagr1 / 12 / 100;
+      const monthlyRate2 = cagr2 / 12 / 100;
+
+      for (let i = 0; i < months; i++) {
+        val1 = (val1 + sip) * (1 + monthlyRate1);
+        val2 = (val2 + sip) * (1 + monthlyRate2);
+        data1.push(Math.round(val1));
+        data2.push(Math.round(val2));
       }
 
-      const value1 = calculateFinalValue(cagr1);
-      const value2 = calculateFinalValue(cagr2);
+      // Final values
+      const final1 = Math.round(val1);
+      const final2 = Math.round(val2);
 
+      // Show result with real fund names
       document.getElementById('compareResult').innerHTML = `
-        <p>Fund 1 Final Value: ₹${value1.toLocaleString()}</p>
-        <p>Fund 2 Final Value: ₹${value2.toLocaleString()}</p>
-        <p><strong>Potential Gain if Switched: ₹${Math.abs(value1 - value2).toLocaleString()}</strong></p>
+        <p><strong>${fund1Name} Final Value:</strong> ₹${final1.toLocaleString()}</p>
+        <p><strong>${fund2Name} Final Value:</strong> ₹${final2.toLocaleString()}</p>
+        <p><strong>Potential Gain if Switched:</strong> ₹${Math.abs(final1 - final2).toLocaleString()}</p>
       `;
 
-      // Draw chart
+      // Chart rendering
       const ctx = document.getElementById('compareChart').getContext('2d');
       if (window.myChart) window.myChart.destroy();
       window.myChart = new Chart(ctx, {
@@ -75,16 +118,18 @@
           labels: Array.from({ length: months }, (_, i) => `M${i + 1}`),
           datasets: [
             {
-              label: 'Fund 1',
-              data: Array.from({ length: months }, (_, i) => calculateFinalValue(cagr1 * (i + 1) / months)),
+              label: fund1Name,
+              data: data1,
               borderColor: '#4f46e5',
-              fill: false
+              fill: false,
+              tension: 0.2
             },
             {
-              label: 'Fund 2',
-              data: Array.from({ length: months }, (_, i) => calculateFinalValue(cagr2 * (i + 1) / months)),
+              label: fund2Name,
+              data: data2,
               borderColor: '#f59e0b',
-              fill: false
+              fill: false,
+              tension: 0.2
             }
           ]
         },
