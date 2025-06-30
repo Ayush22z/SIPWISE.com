@@ -122,8 +122,10 @@ button {
 
 button:hover {
   background-color: #50a7f5;
-  }
-  .compare-btn {
+}
+
+/* === Compare Button (Top Right) === */
+.compare-btn {
   position: absolute;
   top: 25px;
   right: 25px;
@@ -136,6 +138,21 @@ button:hover {
   text-decoration: none;
   transition: background-color 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.compare-btn:hover {
+  background-color: #3730a3;
+}
+
+/* Mobile Fix for Compare Button */
+@media (max-width: 480px) {
+  .compare-btn {
+    position: static;
+    display: block;
+    margin: 20px auto 10px;
+    text-align: center;
+  }
 }
 
 .compare-btn:hover {
