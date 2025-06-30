@@ -122,6 +122,33 @@ button {
 
 button:hover {
   background-color: #50a7f5;
+  .compare-btn {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  background-color: #4f46e5;
+  color: white;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.compare-btn:hover {
+  background-color: #3730a3;
+}
+
+@media (max-width: 480px) {
+  .compare-btn {
+    position: static;
+    display: block;
+    margin: 20px auto 10px;
+    text-align: center;
+  }
+}
 }
 
 /* === Output Results === */
