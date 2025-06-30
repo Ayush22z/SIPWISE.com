@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Compare Mutual Funds - SIPWISE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Compare Mutual Fund Returns</h1>
+    <p style="color: #666; font-size: 0.95rem;">Select two funds below to see how their SIP returns stack up side-by-side.</p>
+
+    <!-- Dropdowns for fund selection -->
+    <label for="fund1">Fund 1:</label>
+    <select id="fund1">
+      <option value="22.99">Nippon India Small Cap Fund</option>
+      <option value="21.74">Quant ELSS Tax Saver Fund</option>
+      <option value="20.76">Quant Small Cap Fund</option>
+      <option value="20.60">HSBC Small Cap Fund</option>
+    </select>
+
+    <label for="fund2">Fund 2:</label>
+    <select id="fund2">
+      <option value="22.99">Nippon India Small Cap Fund</option>
+      <option value="21.74">Quant ELSS Tax Saver Fund</option>
+      <option value="20.76">Quant Small Cap Fund</option>
+      <option value="20.60">HSBC Small Cap Fund</option>
+    </select>
+
+    <label for="sipAmount">Monthly SIP (₹):</label>
+    <input type="number" id="sipAmount" value="500">
+
+    <label for="years">Duration (Years):</label>
+    <input type="number" id="years" value="5">
+
+    <button onclick="compareFunds()">Compare Now</button>
+
+    <canvas id="compareChart"></canvas>
+
+    <div id="compareResult"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function compareFunds() {
+      const sip = parseFloat(document.getElementById('sipAmount').value);
+      const years = parseInt(document.getElementById('years').value);
+      const months = years * 12;
+      const cagr1 = parseFloat(document.getElementById('fund1').value) / 100;
+      const cagr2 = parseFloat(document.getElementById('fund2').value) / 100;
+
+      function calculateFinalValue(cagr) {
+        let fv = 0;
+        for (let i = 0; i < months; i++) {
+          fv += sip * Math.pow(1 + cagr / 12, months - i);
+        }
+        return Math.round(fv);
+      }
+
+      const value1 = calculateFinalValue(cagr1);
+      const value2 = calculateFinalValue(cagr2);
+
+      document.getElementById('compareResult').innerHTML = `
+        <p>Fund 1 Final Value: ₹${value1.toLocaleString()}</p>
+        <p>Fund 2 Final Value: ₹${value2.toLocaleString()}</p>
+        <p><strong>Potential Gain if Switched: ₹${Math.abs(value1 - value2).toLocaleString()}</strong></p>
+      `;
+
+      // Draw chart
+      const ctx = document.getElementById('compareChart').getContext('2d');
+      if (window.myChart) window.myChart.destroy();
+      window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({ length: months }, (_, i) => `M${i + 1}`),
+          datasets: [
+            {
+              label: 'Fund 1',
+              data: Array.from({ length: months }, (_, i) => calculateFinalValue(cagr1 * (i + 1) / months)),
+              borderColor: '#4f46e5',
+              fill: false
+            },
+            {
+              label: 'Fund 2',
+              data: Array.from({ length: months }, (_, i) => calculateFinalValue(cagr2 * (i + 1) / months)),
+              borderColor: '#f59e0b',
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              ticks: {
+                callback: value => '₹' + value.toLocaleString()
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
