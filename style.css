@@ -122,6 +122,7 @@ button {
 
 button:hover {
   background-color: #50a7f5;
+  }
   .compare-btn {
   position: absolute;
   top: 25px;
