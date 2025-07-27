@@ -198,3 +198,25 @@ function convertToWords(num) {
 
   return words.join(' ');
 }
+async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const chatBox = document.getElementById("chat-box");
+  const userMessage = input.value.trim();
+  if (!userMessage) return;
+
+  // Show user message
+  chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+  input.value = "";
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Send to chatbot API
+  const response = await fetch("https://api-inference.onrender.com/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userMessage })
+  });
+
+  const data = await response.json();
+  chatBox.innerHTML += `<p><strong>SIPBot:</strong> ${data.reply}</p>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
