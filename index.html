@@ -6,18 +6,20 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 </head>
-<body>
- <div class="container">
-  <div class="header-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-    <h1 style="margin: 0;">📊 <span style="color:#6197ff;">SIPWISE</span></h1>
-    <div class="button-group" style="display: flex; gap: 10px; margin-top: 10px;">
-      <a href="chatbot.html" class="btn-chat">🤖 Ask Chatbot</a>
-      <a href="compare.html" class="compare-btn">📈 Compare Funds</a>
+
+<body class="main-page">
+
+  <!-- ✅ Header -->
+  <div class="container">
+    <div class="header-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <h1 style="margin: 0;">📊 <span style="color:#6197ff;">SIPWISE</span></h1>
+      <div class="button-group" style="display: flex; gap: 10px; margin-top: 10px;">
+        <a href="chatbot.html" class="btn-chat">🤖 Ask Chatbot</a>
+        <a href="compare.html" class="compare-btn">📈 Compare Funds</a>
+      </div>
     </div>
+    <p style="margin-top: 5px; color: #666; font-size: 14px;">The Honest SIP Calculator</p>
   </div>
-  <p style="margin-top: 5px; color: #666; font-size: 14px;">The Honest SIP Calculator</p>
-</div>
-<p style="font-size: 0.95rem; color: #666; margin-top: -10px;">The Honest SIP Calculator</p>
 
     <label for="fund">Select Fund:</label>
    <select id="fund" name="fund">
@@ -125,69 +127,63 @@
   <option value="11.30">Union Flexicap Fund</option>
   <option value="11.00">LIC MF Flexicap Fund</option>
 </select>
-    <!-- Input Fields -->
-    <label for="sip">💰 Monthly SIP (₹):</label>
-    <input type="number" id="sip" placeholder="Enter amount" />
+    <!-- ✅ Inputs -->
+  <label for="sip">💰 Monthly SIP (₹):</label>
+  <input type="number" id="sip" placeholder="Enter amount" />
 
-    <label for="years">📅 Duration (Years):</label>
-    <input type="number" id="years" placeholder="Years" />
+  <label for="years">📅 Duration (Years):</label>
+  <input type="number" id="years" placeholder="Years" />
 
-    <label for="cagr">📊 CAGR (%):</label>
-    <input type="number" id="cagr" placeholder="Auto or Manual" />
+  <label for="cagr">📊 CAGR (%):</label>
+  <input type="number" id="cagr" placeholder="Auto or Manual" />
 
-    <label for="deviation">📉 Deviation (%):</label>
-<input type="number" id="deviation" placeholder="e.g. 2" />
+  <label for="deviation">📉 Deviation (%):</label>
+  <input type="number" id="deviation" placeholder="e.g. 2" />
 
-    <!-- Inflation Toggle Section -->
-    <div class="toggle-row">
-      <label class="switch">
-        <input type="checkbox" id="adjustInflation" />
-        <span class="slider"></span>
-      </label>
-      <label for="adjustInflation" class="toggle-label">
-        Adjust for Inflation (Real Returns)<sup>⭐</sup>
-      </label>
-    </div>
-
-    <!-- 🌙 Dark Mode Toggle Section -->
-    <div class="toggle-row">
-      <label class="switch">
-        <input type="checkbox" id="darkModeToggle" />
-        <span class="slider"></span>
-      </label>
-      <label for="darkModeToggle" class="toggle-label">
-        Dark Mode 🌙
-      </label>
-    </div>
-
-    <!-- Inflation Note -->
-    <small class="note">⭐ Assumes average inflation of <strong>6%</strong> per year</small>
-
-    <!-- Hidden Inflation Input -->
-    <div id="inflationRateGroup" style="display:none; margin-top: 10px;">
-      <label for="inflationRate">📉 Inflation Rate (%):</label>
-      <input type="number" id="inflationRate" value="6" min="0" max="15" />
-    </div>
-
-    <!-- Calculate Button -->
-   <button id="calculateBtn">Calculate</button>
-
-    <!-- Output Sections -->
-    <div id="result" class="output" style="margin-top: 20px;"></div>
-    <div id="resultInWords" class="text-output"></div>
-<div id="summary" class="text-output summary"></div>
-
-    <!-- Chart -->
-    <canvas id="myChart" style="margin-top: 20px; max-width: 100%;" width="400" height="200"></canvas>
+  <!-- ✅ Inflation Toggle -->
+  <div class="toggle-row">
+    <label class="switch">
+      <input type="checkbox" id="adjustInflation" />
+      <span class="slider"></span>
+    </label>
+    <label for="adjustInflation" class="toggle-label">
+      Adjust for Inflation (Real Returns)<sup>⭐</sup>
+    </label>
   </div>
 
-  <!-- Scripts -->
+  <!-- ✅ Dark Mode Toggle -->
+  <div class="toggle-row">
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggle" />
+      <span class="slider"></span>
+    </label>
+    <label for="darkModeToggle" class="toggle-label">
+      Dark Mode 🌙
+    </label>
+  </div>
+
+  <!-- ✅ Notes and Optional Inflation Rate -->
+  <small class="note">⭐ Assumes average inflation of <strong>6%</strong> per year</small>
+  <div id="inflationRateGroup" style="display:none; margin-top: 10px;">
+    <label for="inflationRate">📉 Inflation Rate (%):</label>
+    <input type="number" id="inflationRate" value="6" min="0" max="15" />
+  </div>
+
+  <!-- ✅ Calculate Button -->
+  <button id="calculateBtn">Calculate</button>
+
+  <!-- ✅ Outputs -->
+  <div id="result" class="output" style="margin-top: 20px;"></div>
+  <div id="resultInWords" class="text-output"></div>
+  <div id="summary" class="text-output summary"></div>
+
+  <!-- ✅ Chart.js Output -->
+  <canvas id="myChart" style="margin-top: 20px; max-width: 100%;" width="400" height="200"></canvas>
+
+  <!-- ✅ Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
-<body class="main-page"> <!-- for index.html -->
-<body class="chat-page"> <!-- for chatbot.html -->
-<body class="compare-page"> <!-- for compare.html -->
 
-  </body>
+</body>
 </html>
