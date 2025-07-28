@@ -344,3 +344,89 @@ body.dark-mode .choices__placeholder {
     text-align: center;
   }
 }
+/* ----------------------------
+   Header layout and buttons
+----------------------------- */
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.compare-btn, .btn-chat {
+  padding: 8px 14px;
+  font-size: 14px;
+  background-color: #6197ff;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.compare-btn:hover, .btn-chat:hover {
+  background-color: #4a7bd3;
+}
+
+/* ----------------------------
+   Dark mode styles
+----------------------------- */
+
+body.dark {
+  background-color: #1c1c1c;
+  color: #eee;
+}
+
+body.dark h1, 
+body.dark p, 
+body.dark label, 
+body.dark span {
+  color: #eee;
+}
+
+body.dark input,
+body.dark select {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+body.dark .compare-btn,
+body.dark .btn-chat {
+  background-color: #4a7bd3;
+  color: white;
+}
+
+body.dark .compare-btn:hover,
+body.dark .btn-chat:hover {
+  background-color: #3c68b5;
+}
+
+/* ----------------------------
+   Dark mode toggle button
+----------------------------- */
+.toggle-darkmode {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #6197ff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  z-index: 999;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-darkmode:hover {
+  background-color: #4a7bd3;
+}
