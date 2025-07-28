@@ -418,3 +418,16 @@ button {
 .btn-chat:hover {
   background-color: #0056b3;
 }
+.btn-chat {
+  background-color: #eaefff;
+  border: 1px solid #aaa;
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s ease;
+}
+.btn-chat:hover {
+  background-color: #d0e0ff;
+}
