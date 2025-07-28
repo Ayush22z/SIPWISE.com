@@ -431,3 +431,35 @@ button {
 .btn-chat:hover {
   background-color: #d0e0ff;
 }
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.top-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-chat,
+.btn-compare {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  background-color: #5b4bff;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.btn-chat:hover,
+.btn-compare:hover {
+  background-color: #4332e0;
+}
