@@ -463,3 +463,20 @@ button {
 .btn-compare:hover {
   background-color: #4332e0;
 }
+.btn-chat, .compare-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+  background: #f1f5ff;
+  color: #333;
+}
+
+.btn-chat:hover, .compare-btn:hover {
+  background: #d6e5ff;
+  color: #000;
+  border-color: #6197ff;
+}
