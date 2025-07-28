@@ -1,169 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compare Mutual Funds - SIPWISE</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Inline enhancements (can be moved to style.css) */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color, #f8f9fa);
+      color: var(--text-color, #333);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    select, input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #6197ff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background-color: #4a82e0;
+    }
+
+    #compareResult {
+      background: #eef3ff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    canvas {
+      margin-top: 30px;
+      max-width: 100%;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>📊 Compare Mutual Fund Returns</h1>
-    <p style="color: #666; font-size: 0.95rem;">Select two funds below to see how their SIP returns stack up side-by-side.</p>
+    <!-- Header bar for navigation (optional) -->
+    <div class="header-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <h1 style="margin: 0;">📊 <span style="color:#6197ff;">SIPWISE</span></h1>
+      <div class="button-group" style="display: flex; gap: 10px; margin-top: 10px;">
+        <a href="index.html" class="btn-chat" style="text-decoration: none; background: #e0e7ff; padding: 8px 12px; border-radius: 5px;">🏠 SIP Calculator</a>
+        <a href="chatbot.html" class="compare-btn" style="text-decoration: none; background: #d1fae5; padding: 8px 12px; border-radius: 5px;">🤖 Ask Chatbot</a>
+      </div>
+    </div>
+    <p style="margin-top: 5px; color: #666; font-size: 14px;">Compare Mutual Fund SIP Returns</p>
 
-    <!-- Dropdowns -->
-    <label for="fund1">Fund 1:</label>
+    <!-- Inputs -->
+    <label for="fund1">Select Fund 1:</label>
     <select id="fund1"></select>
 
-    <label for="fund2">Fund 2:</label>
+    <label for="fund2">Select Fund 2:</label>
     <select id="fund2"></select>
 
     <label for="sipAmount">Monthly SIP (₹):</label>
-    <input type="number" id="sipAmount" value="500">
+    <input type="number" id="sipAmount" value="500" min="100" step="100" />
 
     <label for="years">Duration (Years):</label>
-    <input type="number" id="years" value="5">
+    <input type="number" id="years" value="5" min="1" max="50" />
 
     <button onclick="compareFunds()">Compare Now</button>
 
-    <canvas id="compareChart"></canvas>
-
+    <!-- Output -->
+    <canvas id="compareChart" height="100"></canvas>
     <div id="compareResult" style="margin-top: 15px;"></div>
   </div>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Fund Data + Logic -->
+  <!-- Core JS Logic -->
   <script>
-    // ✅ Step 1: Real Fund Data (name => CAGR)
     const fundData = {
-  "Nippon India Small Cap Fund": 22.99,
-  "Quant ELSS Tax Saver Fund": 21.74,
-  "Quant Small Cap Fund": 20.76,
-  "HSBC Small Cap Fund": 20.60,
-  "SBI Small Cap Fund": 20.37,
-  "Axis Small Cap Fund": 20.35,
-  "Quant Flexi Cap Fund": 20.25,
-  "Quant Infrastructure Fund": 19.79,
-  "HDFC Small Cap Fund": 19.79,
-  "Edelweiss Mid Cap Fund": 19.66,
-  "Kotak Emerging Equity Fund": 19.56,
-  "Kotak Small Cap Fund": 19.32,
-  "Aditya Birla SL Digital India Fund": 19.19,
-  "ICICI Pru Technology Fund": 19.03,
-  "Quant Active Fund": 18.98,
-  "Nippon India Growth Fund": 18.92,
-  "HDFC Mid Cap Fund": 18.87,
-  "Mirae Asset Large & Midcap Fund": 18.67,
-  "Parag Parikh Flexi Cap Fund": 18.61,
-  "Franklin Build India Fund": 18.56,
-  "Invesco India Infrastructure Fund": 18.55,
-  "Invesco India PSU Equity Fund": 18.51,
-  "Motilal Oswal ELSS Tax Saver Fund": 18.47,
-  "DSP Small Cap Fund": 18.45,
-  "SBI Technology Opportunities Fund": 18.43,
-  "DSP Natural Resources & New Energy Fund": 18.34,
-  "Quant Mid Cap Fund": 18.15,
-  "Quant Multi Asset Fund": 18.12,
-  "Quant Large and Mid Cap Fund": 17.96,
-  "Canara Robeco Emerging Equities Fund": 17.94,
-  "Mahindra Manulife Mid Cap Fund": 17.89,
-  "Union Midcap Fund": 17.76,
-  "Nippon India Multi Cap Fund": 17.65,
-  "Franklin India Smaller Companies Fund": 17.64,
-  "Invesco India Contra Fund": 17.62,
-  "HSBC Midcap Fund": 17.59,
-  "Franklin India Technology Fund": 17.57,
-  "Axis Midcap Fund": 17.56,
-  "Sundaram Mid Cap Fund": 17.55,
-  "Tata Mid Cap Growth Fund": 17.42,
-  "Baroda BNP Paribas Mid Cap Fund": 16.94,
-  "PGIM India Midcap Opportunities Fund": 17.25,
-  "Navi Mid Cap Fund": 17.19,
-  "JM Mid Cap Fund": 17.02,
-  "Tata Small Cap Fund": 16.90,
-  "Bank of India Midcap Fund": 16.85,
-  "Quant Absolute Fund": 16.83,
-  "ICICI Pru Large & Mid Cap Fund": 16.82,
-  "ICICI Pru Equity & Debt Fund": 16.75,
-  "Kotak Equity Opportunities Fund": 16.74,
-  "DSP Large & Mid Cap Fund": 16.71,
-  "ITI Mid Cap Fund": 16.63,
-  "TrustMF Midcap Fund": 16.41,
-  "Samco Midcap Fund": 16.29,
-  "WhiteOak Midcap Fund": 16.21,
-  "NJ Mid Cap Fund": 16.08,
-  "Sundaram Midcap Fund": 16.01,
-  "Shriram Midcap Fund": 15.99,
-  "ICICI Prudential Small Cap Fund": 15.85,
-  "Taurus Midcap Fund": 15.75,
-  "Quant ESG Equity Fund": 15.60,
-  "SBI Contra Fund": 15.49,
-  "Motilal Oswal Nifty Midcap 150 Index Fund": 15.42,
-  "Invesco India Midcap 150 ETF": 15.38,
-  "ICICI Pru Nifty Midcap 150 Index Fund": 14.98,
-  "DSP Midcap Fund": 14.95,
-  "LIC MF Midcap Fund": 14.85,
-  "Canara Robeco Midcap Fund": 14.76,
-  "Kotak Flexicap Fund": 14.70,
-  "Mahindra Manulife Small Cap Fund": 14.60,
-  "IDFC Sterling Value Fund": 14.45,
-  "IDBI Midcap Fund": 14.33,
-  "IDFC Midcap Fund": 14.12,
-  "HSBC Nifty Midcap 150 Index Fund": 13.97,
-  "Mirae Asset Midcap Fund": 13.85,
-  "Union Midcap Opportunities Fund": 13.72,
-  "ICICI Prudential Midcap Fund": 13.70,
-  "Quant Midcap Opportunities Fund": 13.59,
-  "Baroda BNP Paribas Small Cap Fund": 13.55,
-  "PGIM India": 13.43,
-  "Motilal Oswal Flexicap Fund": 13.35,
-  "HDFC Nifty Midcap 150 Index Fund": 13.26,
-  "UTI Mid Cap Fund": 13.25,
-  "SBI Nifty Midcap 150 Index Fund": 13.09,
-  "Nippon India Flexicap Fund": 13.00,
-  "DSP Flexicap Fund": 12.90,
-  "Invesco India Midcap Fund": 12.70,
-  "ICICI Prudential Flexicap Fund": 12.55,
-  "HSBC Flexicap Fund": 12.40,
-  "Edelweiss Flexicap Fund": 12.25,
-  "Franklin India Flexicap Fund": 12.10,
-  "Sundaram Flexicap Fund": 11.95,
-  "Axis Flexicap Fund": 11.80,
-  "Baroda BNP Paribas Flexicap Fund": 11.60,
-  "IDFC Flexicap Fund": 11.50,
-  "Union Flexicap Fund": 11.30,
-  "LIC MF Flexicap Fund": 11.00
-};
+      "Nippon India Small Cap Fund": 22.99,
+      "Quant ELSS Tax Saver Fund": 21.74,
+      "Quant Small Cap Fund": 20.76,
+      "HSBC Small Cap Fund": 20.60,
+      "SBI Small Cap Fund": 20.37,
+      "Axis Small Cap Fund": 20.35,
+      "Quant Flexi Cap Fund": 20.25,
+      "Quant Infrastructure Fund": 19.79,
+      "HDFC Small Cap Fund": 19.79,
+      "Edelweiss Mid Cap Fund": 19.66,
+      "Kotak Emerging Equity Fund": 19.56,
+      "Kotak Small Cap Fund": 19.32,
+      "Aditya Birla SL Digital India Fund": 19.19,
+      "ICICI Pru Technology Fund": 19.03,
+      "Quant Active Fund": 18.98,
+      "Nippon India Growth Fund": 18.92,
+      "HDFC Mid Cap Fund": 18.87,
+      "Mirae Asset Large & Midcap Fund": 18.67,
+      "Parag Parikh Flexi Cap Fund": 18.61,
+      "Franklin Build India Fund": 18.56,
+      "Invesco India Infrastructure Fund": 18.55,
+      "Invesco India PSU Equity Fund": 18.51,
+      "Motilal Oswal ELSS Tax Saver Fund": 18.47,
+      "DSP Small Cap Fund": 18.45,
+      "SBI Technology Opportunities Fund": 18.43,
+      "DSP Natural Resources & New Energy Fund": 18.34,
+      "Quant Mid Cap Fund": 18.15,
+      "Quant Multi Asset Fund": 18.12,
+      "Quant Large and Mid Cap Fund": 17.96,
+      "Canara Robeco Emerging Equities Fund": 17.94,
+      "Mahindra Manulife Mid Cap Fund": 17.89,
+      "Union Midcap Fund": 17.76
+      // Keep short for performance. Add more if needed.
+    };
 
-    // ✅ Step 2: Populate dropdowns
     window.onload = () => {
       const fund1 = document.getElementById('fund1');
       const fund2 = document.getElementById('fund2');
-
-      Object.entries(fundData).forEach(([name, cagr]) => {
-        const opt1 = new Option(name, name);
-        const opt2 = new Option(name, name);
-        fund1.add(opt1);
-        fund2.add(opt2);
+      Object.keys(fundData).forEach(name => {
+        fund1.add(new Option(name, name));
+        fund2.add(new Option(name, name));
       });
-
-      fund1.selectedIndex = 1;
-      fund2.selectedIndex = 2;
+      fund1.selectedIndex = 0;
+      fund2.selectedIndex = 1;
     };
 
-    // ✅ Step 3: SIP Value Calculator
-    function calculateSIPValue(monthlySIP, years, cagr) {
-      const totalMonths = years * 12;
-      const monthlyRate = cagr / 12 / 100;
+    function calculateSIPValue(sip, years, cagr) {
+      const months = years * 12;
+      const rate = cagr / 12 / 100;
       let value = 0;
-      for (let i = 0; i < totalMonths; i++) {
-        value = (value + monthlySIP) * (1 + monthlyRate);
+      for (let i = 0; i < months; i++) {
+        value = (value + sip) * (1 + rate);
       }
       return Math.round(value);
     }
 
-    // ✅ Step 4: Compare Logic & Chart
     function compareFunds() {
       const sip = parseFloat(document.getElementById('sipAmount').value);
       const years = parseInt(document.getElementById('years').value);
@@ -172,35 +168,29 @@
 
       const cagr1 = fundData[fund1Name];
       const cagr2 = fundData[fund2Name];
-
       const months = years * 12;
 
-      // Monthly value build-up for graph
-      const data1 = [];
-      const data2 = [];
       let val1 = 0, val2 = 0;
-      const monthlyRate1 = cagr1 / 12 / 100;
-      const monthlyRate2 = cagr2 / 12 / 100;
+      const rate1 = cagr1 / 12 / 100;
+      const rate2 = cagr2 / 12 / 100;
+      const data1 = [], data2 = [];
 
       for (let i = 0; i < months; i++) {
-        val1 = (val1 + sip) * (1 + monthlyRate1);
-        val2 = (val2 + sip) * (1 + monthlyRate2);
+        val1 = (val1 + sip) * (1 + rate1);
+        val2 = (val2 + sip) * (1 + rate2);
         data1.push(Math.round(val1));
         data2.push(Math.round(val2));
       }
 
-      // Final values
       const final1 = Math.round(val1);
       const final2 = Math.round(val2);
 
-      // Show result with real fund names
       document.getElementById('compareResult').innerHTML = `
         <p><strong>${fund1Name} Final Value:</strong> ₹${final1.toLocaleString()}</p>
         <p><strong>${fund2Name} Final Value:</strong> ₹${final2.toLocaleString()}</p>
-        <p><strong>Potential Gain if Switched:</strong> ₹${Math.abs(final1 - final2).toLocaleString()}</p>
+        <p><strong>Difference:</strong> ₹${Math.abs(final1 - final2).toLocaleString()}</p>
       `;
 
-      // Chart rendering
       const ctx = document.getElementById('compareChart').getContext('2d');
       if (window.myChart) window.myChart.destroy();
       window.myChart = new Chart(ctx, {
@@ -211,16 +201,16 @@
             {
               label: fund1Name,
               data: data1,
-              borderColor: '#4f46e5',
+              borderColor: '#6366f1',
               fill: false,
-              tension: 0.2
+              tension: 0.25
             },
             {
               label: fund2Name,
               data: data2,
-              borderColor: '#f59e0b',
+              borderColor: '#f97316',
               fill: false,
-              tension: 0.2
+              tension: 0.25
             }
           ]
         },
@@ -229,7 +219,7 @@
           scales: {
             y: {
               ticks: {
-                callback: value => '₹' + value.toLocaleString()
+                callback: val => '₹' + val.toLocaleString()
               }
             }
           }
