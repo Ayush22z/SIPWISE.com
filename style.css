@@ -404,4 +404,17 @@ button {
   cursor: pointer;
   border-radius: 4px;
 }
-m
+.btn-chat {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+.btn-chat:hover {
+  background-color: #0056b3;
+}
