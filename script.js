@@ -1,222 +1,223 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const fundDropdown = document.getElementById('fund');
-  const cagrInput = document.getElementById('cagr');
-  const adjustCheckbox = document.getElementById('adjustInflation');
-  const inflationGroup = document.getElementById('inflationRateGroup');
-  const darkToggle = document.getElementById('darkModeToggle');
-  const calculateBtn = document.getElementById('calculateBtn');
+document.addEventListener("DOMContentLoaded", function () {
+  const fundDropdown = document.getElementById("fund");
+  const cagrInput = document.getElementById("cagr");
+  const sipInput = document.getElementById("sip");
+  const yearsInput = document.getElementById("years");
+  const inflationToggle = document.getElementById("inflation-toggle");
+  const inflationInput = document.getElementById("inflation-rate");
+  const deviationInput = document.getElementById("deviation");
+  const resultAmount = document.getElementById("result-amount");
+  const resultWords = document.getElementById("result-words");
+  const summaryText = document.getElementById("summary");
+  const chartCanvas = document.getElementById("sipChart");
+  const darkModeToggle = document.getElementById("darkModeToggle");
 
-  const choices = new Choices(fundDropdown, {
-    searchEnabled: true,
-    itemSelectText: '',
-    shouldSort: false
-  });
+  // Auto-select first valid fund option
+  const firstValidOption = Array.from(fundDropdown.options).find(opt => !opt.disabled);
+  if (firstValidOption) {
+    cagrInput.value = firstValidOption.value;
+  }
 
-  // Handle auto-update CAGR when selecting a fund
-  fundDropdown.addEventListener('change', () => {
-    const selectedOption = fundDropdown.options[fundDropdown.selectedIndex];
-    const cagr = parseFloat(selectedOption.value);
-    if (!isNaN(cagr)) {
-      cagrInput.value = cagr;
+  // Update CAGR input when a fund is selected
+  fundDropdown.addEventListener("change", function () {
+    const selectedValue = fundDropdown.value;
+    if (selectedValue !== "") {
+      cagrInput.value = selectedValue;
     }
   });
 
-  // Trigger initial CAGR update on page load
-  const initialCAGR = parseFloat(fundDropdown.options[fundDropdown.selectedIndex].value);
-  if (!isNaN(initialCAGR)) {
-    cagrInput.value = initialCAGR;
+  // Toggle inflation input visibility
+  inflationToggle.addEventListener("change", function () {
+    document.getElementById("inflation-container").style.display = inflationToggle.checked ? "block" : "none";
+  });
+
+  // Chart instance
+  let chart;
+
+  function calculateSIP() {
+    const sip = parseFloat(sipInput.value);
+    const years = parseFloat(yearsInput.value);
+    let cagr = parseFloat(cagrInput.value);
+    const adjustInflation = inflationToggle.checked;
+    const inflationRate = parseFloat(inflationInput.value);
+    const deviation = parseFloat(deviationInput.value);
+
+    if (isNaN(sip)) return showError("Please enter a valid SIP amount.");
+    if (isNaN(years)) return showError("Please enter investment duration.");
+    if (isNaN(cagr)) return showError("Please enter or select a CAGR.");
+
+    // Adjust CAGR for inflation
+    if (adjustInflation && !isNaN(inflationRate)) {
+      cagr = Math.max(0, cagr - inflationRate);
+    }
+
+    const months = years * 12;
+    const rate = cagr / 12 / 100;
+    const fv = sip * ((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate);
+    const totalInvested = sip * months;
+
+    const bestCAGR = cagr + deviation;
+    const worstCAGR = Math.max(0, cagr - deviation);
+    const bestRate = bestCAGR / 12 / 100;
+    const worstRate = worstCAGR / 12 / 100;
+
+    const bestFV = sip * ((Math.pow(1 + bestRate, months) - 1) / bestRate) * (1 + bestRate);
+    const worstFV = sip * ((Math.pow(1 + worstRate, months) - 1) / worstRate) * (1 + worstRate);
+
+    resultAmount.textContent = `₹${fv.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+    resultWords.textContent = `(${convertToWords(Math.round(fv))} rupees)`;
+
+    summaryText.innerHTML = `
+      <strong>Total Invested:</strong> ₹${totalInvested.toLocaleString("en-IN")}<br>
+      <strong>Expected Value:</strong> ₹${fv.toLocaleString("en-IN")}<br>
+      <strong>Best Case:</strong> ₹${bestFV.toLocaleString("en-IN")} @ ${bestCAGR.toFixed(2)}%<br>
+      <strong>Worst Case:</strong> ₹${worstFV.toLocaleString("en-IN")} @ ${worstCAGR.toFixed(2)}%
+    `;
+
+    drawChart(years, sip, cagr, deviation);
   }
 
-  adjustCheckbox.addEventListener('change', () => {
-    inflationGroup.style.display = adjustCheckbox.checked ? 'block' : 'none';
-  });
-
-  darkToggle.addEventListener('change', () => {
-    document.body.classList.toggle('dark-mode', darkToggle.checked);
-    updateChartTheme();
-  });
-
-  calculateBtn.addEventListener('click', calculateSIP);
-});
-
-let chart;
-
-function calculateSIP() {
-  const sip = parseFloat(document.getElementById('sip').value);
-  const years = parseFloat(document.getElementById('years').value);
-  let cagr = parseFloat(document.getElementById('cagr').value);
-  const deviation = parseFloat(document.getElementById('deviation').value || '0');
-  const inflationRate = parseFloat(document.getElementById('inflationRate').value || '0');
-  const adjustInflation = document.getElementById('adjustInflation').checked;
-
-  if (adjustInflation && !isNaN(inflationRate)) {
-    cagr -= inflationRate;
+  function showError(message) {
+    alert(message);
+    window.scrollTo(0, 0);
   }
 
-  if (isNaN(sip) || isNaN(years) || isNaN(cagr)) {
-    alert("Please enter all fields correctly.");
-    return;
+  function convertToWords(num) {
+    const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+    const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+    const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+
+    if (num === 0) return 'zero';
+
+    const getTwoDigits = n => {
+      if (n < 10) return ones[n];
+      else if (n >= 10 && n < 20) return teens[n - 10];
+      else return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? '-' + ones[n % 10] : '');
+    };
+
+    const crore = Math.floor(num / 10000000);
+    num %= 10000000;
+    const lakh = Math.floor(num / 100000);
+    num %= 100000;
+    const thousand = Math.floor(num / 1000);
+    num %= 1000;
+    const hundred = Math.floor(num / 100);
+    num %= 100;
+    const remainder = num;
+
+    let words = '';
+    if (crore) words += getTwoDigits(crore) + ' crore ';
+    if (lakh) words += getTwoDigits(lakh) + ' lakh ';
+    if (thousand) words += getTwoDigits(thousand) + ' thousand ';
+    if (hundred) words += ones[hundred] + ' hundred ';
+    if (remainder) words += getTwoDigits(remainder);
+
+    return words.trim();
   }
 
-  const months = years * 12;
-  const baseRate = cagr / 100 / 12;
-  const highRate = (cagr + deviation) / 100 / 12;
-  const lowRate = (cagr - deviation) / 100 / 12;
+  function drawChart(years, sip, cagr, deviation) {
+    const labels = Array.from({ length: years + 1 }, (_, i) => `${i} yr`);
+    const monthsPerYear = 12;
 
-  const fv = r => sip * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+    const dataPoints = (rate) =>
+      labels.map((_, i) => {
+        const months = i * monthsPerYear;
+        return Math.round(
+          sip * ((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate)
+        );
+      });
 
-  const futureValue = fv(baseRate);
-  const totalInvested = sip * months;
-  const wealthGained = futureValue - totalInvested;
+    const baseRate = cagr / 12 / 100;
+    const bestRate = (cagr + deviation) / 12 / 100;
+    const worstRate = Math.max(0, (cagr - deviation) / 12 / 100);
 
-  const format = n => n.toLocaleString('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  });
+    const baseData = dataPoints(baseRate);
+    const bestData = dataPoints(bestRate);
+    const worstData = dataPoints(worstRate);
 
-  document.getElementById('result').innerText = `💰 ${format(futureValue)}`;
-  document.getElementById('resultInWords').innerText = `(${convertToWords(futureValue)})`;
-  document.getElementById('summary').innerHTML = `
-    📦 Total Invested: ${format(totalInvested)}<br>
-    💸 Final Value: ${format(futureValue)}<br>
-    🧾 Wealth Gained: ${format(wealthGained)}<br>
-    📈 Best Case: ${format(fv(highRate))}<br>
-    📉 Worst Case: ${format(fv(lowRate))}
-  `;
+    if (chart) chart.destroy();
 
-  const labels = Array.from({ length: years }, (_, i) => `Year ${i + 1}`);
-  const grow = r => labels.map((_, i) => {
-    const n = (i + 1) * 12;
-    return sip * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
-  });
-
-  const baseData = grow(baseRate);
-  const highData = grow(highRate);
-  const lowData = grow(lowRate);
-
-  const ctx = document.getElementById('myChart').getContext('2d');
-  if (chart) chart.destroy();
-
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Expected (₹)',
-          data: baseData,
-          borderColor: '#70b9ff',
-          tension: 0.3,
-          pointRadius: 3,
-          fill: false
-        },
-        {
-          label: 'Best Case (₹)',
-          data: highData,
-          borderColor: '#4caf50',
-          tension: 0.3,
-          pointRadius: 0,
-          borderDash: [5, 5],
-          fill: false
-        },
-        {
-          label: 'Worst Case (₹)',
-          data: lowData,
-          borderColor: '#f44336',
-          tension: 0.3,
-          pointRadius: 0,
-          borderDash: [5, 5],
-          fill: false
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: {
-          ticks: {
-            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
+    chart = new Chart(chartCanvas, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Expected (₹)',
+            data: baseData,
+            borderColor: '#70b9ff',
+            backgroundColor: 'rgba(112, 185, 255, 0.2)',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 3
+          },
+          {
+            label: 'Best Case (₹)',
+            data: bestData,
+            borderColor: '#4caf50',
+            borderDash: [5, 5],
+            tension: 0.3,
+            pointRadius: 0
+          },
+          {
+            label: 'Worst Case (₹)',
+            data: worstData,
+            borderColor: '#f44336',
+            borderDash: [5, 5],
+            tension: 0.3,
+            pointRadius: 0
           }
-        },
-        y: {
-          ticks: {
-            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
-          }
-        }
+        ]
       },
-      plugins: {
-        legend: {
-          labels: {
-            color: document.body.classList.contains('dark-mode') ? '#fff' : '#333'
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#333'
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: {
+              color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#333'
+            }
+          },
+          x: {
+            ticks: {
+              color: getComputedStyle(document.body).getPropertyValue('--text-color') || '#333'
+            }
           }
         }
       }
+    });
+  }
+
+  function updateChartTheme() {
+    if (chart) {
+      chart.options.plugins.legend.labels.color =
+        getComputedStyle(document.body).getPropertyValue('--text-color') || '#333';
+      chart.options.scales.x.ticks.color =
+        getComputedStyle(document.body).getPropertyValue('--text-color') || '#333';
+      chart.options.scales.y.ticks.color =
+        getComputedStyle(document.body).getPropertyValue('--text-color') || '#333';
+      chart.update();
     }
-  });
-}
+  }
 
-function updateChartTheme() {
-  if (!chart) return;
-  const dark = document.body.classList.contains('dark-mode');
-  chart.options.scales.x.ticks.color = dark ? '#fff' : '#333';
-  chart.options.scales.y.ticks.color = dark ? '#fff' : '#333';
-  chart.options.plugins.legend.labels.color = dark ? '#fff' : '#333';
-  chart.update();
-}
+  // Theme on load
+  if (document.body.classList.contains("dark-mode")) {
+    updateChartTheme();
+  }
 
-function convertToWords(num) {
-  const raw = parseInt(num.toLocaleString('en-IN', {
-    maximumFractionDigits: 0
-  }).replace(/,/g, ''));
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      updateChartTheme();
+    });
+  }
 
-  if (isNaN(raw)) return "";
-
-  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  const c = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-
-  const getWords = n => {
-    if (n < 10) return a[n];
-    if (n < 20) return c[n - 10];
-    return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
-  };
-
-  const numStr = raw.toString().padStart(9, '0');
-  const crore = parseInt(numStr.slice(0, 2));
-  const lakh = parseInt(numStr.slice(2, 4));
-  const thousand = parseInt(numStr.slice(4, 6));
-  const hundred = parseInt(numStr[6]);
-  const rest = parseInt(numStr.slice(7));
-
-  let words = [];
-  if (crore) words.push(getWords(crore) + ' Crore');
-  if (lakh) words.push(getWords(lakh) + ' Lakh');
-  if (thousand) words.push(getWords(thousand) + ' Thousand');
-  if (hundred) words.push(a[hundred] + ' Hundred');
-  if (rest) words.push('and ' + getWords(rest));
-
-  return words.join(' ');
-}
-async function sendMessage() {
-  const input = document.getElementById("user-input");
-  const chatBox = document.getElementById("chat-box");
-  const userMessage = input.value.trim();
-  if (!userMessage) return;
-
-  // Show user message
-  chatBox.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
-  input.value = "";
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  // Send to chatbot API
-  const response = await fetch("https://api-inference.onrender.com/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userMessage })
-  });
-
-  const data = await response.json();
-  chatBox.innerHTML += `<p><strong>SIPBot:</strong> ${data.reply}</p>`;
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+  // Calculate button
+  document.getElementById("calculate-btn").addEventListener("click", calculateSIP);
+});
